@@ -36,39 +36,39 @@
  * 	  dirty exit is fine
  */
 
-/*
+ /*
 
-	This file is part of VIPS.
+	 This file is part of VIPS.
 
-	VIPS is free software; you can redistribute it and/or modify
-	it under the terms of the GNU Lesser General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	 VIPS is free software; you can redistribute it and/or modify
+	 it under the terms of the GNU Lesser General Public License as published by
+	 the Free Software Foundation; either version 2 of the License, or
+	 (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Lesser General Public License for more details.
+	 This program is distributed in the hope that it will be useful,
+	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU Lesser General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-	02110-1301  USA
+	 You should have received a copy of the GNU Lesser General Public License
+	 along with this program; if not, write to the Free Software
+	 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+	 02110-1301  USA
 
- */
+  */
 
-/*
+  /*
 
-	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
+	  These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+   */
 
-/*
-#define DEBUG
- */
+   /*
+   #define DEBUG
+	*/
 
-/* pthread_setattr_default_np() is a non-portable GNU extension.
- */
+	/* pthread_setattr_default_np() is a non-portable GNU extension.
+	 */
 #define _GNU_SOURCE
 
 #ifdef HAVE_CONFIG_H
@@ -100,30 +100,26 @@
 #include <vips/internal.h>
 #include <vips/vector.h>
 
-#if ENABLE_DEPRECATED
-#include <vips/vips7compat.h>
-#endif
-
-/* abort() on the first warning or error.
- */
+	 /* abort() on the first warning or error.
+	  */
 int vips__fatal = 0;
 
 /* Use in various small places where we need a mutex and it's not worth
  * making a private one.
  */
-GMutex *vips__global_lock = NULL;
+GMutex* vips__global_lock = NULL;
 
 /* A debugging timer, zero at library init.
  */
-GTimer *vips__global_timer = NULL;
+GTimer* vips__global_timer = NULL;
 
 /* Keep a copy of the argv0 here.
  */
-static char *vips__argv0 = NULL;
+static char* vips__argv0 = NULL;
 
 /* Keep a copy of the last component of argv0 here.
  */
-static char *vips__prgname = NULL;
+static char* vips__prgname = NULL;
 
 /* Leak check on exit.
  */
@@ -146,9 +142,8 @@ static gint64 vips_pipe_read_limit = 1024 * 1024 * 1024;
  * argv0 string passed to
  * VIPS_INIT(). Do not free this value
  */
-const char *
-vips_get_argv0(void)
-{
+const char*
+vips_get_argv0(void) {
 	return vips__argv0;
 }
 
@@ -162,10 +157,9 @@ vips_get_argv0(void)
  * Returns: (transfer none): a pointer to an internal copy of the program
  * name. Do not free this value
  */
-const char *
-vips_get_prgname(void)
-{
-	const char *prgname;
+const char*
+vips_get_prgname(void) {
+	const char* prgname;
 
 	if ((prgname = g_get_prgname()))
 		return prgname;
@@ -243,15 +237,14 @@ vips_get_prgname(void)
  */
 
 #ifdef ENABLE_MODULES
-/* Load all plugins in a directory.
- */
+ /* Load all plugins in a directory.
+  */
 static void
-vips_load_plugins(const char *fmt, ...)
-{
+vips_load_plugins(const char* fmt, ...) {
 	va_list ap;
 	char dir_name[VIPS_PATH_MAX];
-	GDir *dir;
-	const char *name;
+	GDir* dir;
+	const char* name;
 
 	/* Do nothing if modules aren't supported.
 	 */
@@ -259,7 +252,7 @@ vips_load_plugins(const char *fmt, ...)
 		return;
 
 	va_start(ap, fmt);
-	(void) vips_vsnprintf(dir_name, VIPS_PATH_MAX - 1, fmt, ap);
+	(void)vips_vsnprintf(dir_name, VIPS_PATH_MAX - 1, fmt, ap);
 	va_end(ap);
 
 	g_info("searching \"%s\"", dir_name);
@@ -271,7 +264,7 @@ vips_load_plugins(const char *fmt, ...)
 
 	while ((name = g_dir_read_name(dir))) {
 		char path[VIPS_PATH_MAX];
-		GModule *module;
+		GModule* module;
 
 		vips_snprintf(path, VIPS_PATH_MAX - 1,
 			"%s" G_DIR_SEPARATOR_S "%s", dir_name, name);
@@ -296,17 +289,15 @@ vips_load_plugins(const char *fmt, ...)
 /* Install this log handler to hide warning messages.
  */
 static void
-empty_log_handler(const gchar *log_domain, GLogLevelFlags log_level,
-	const gchar *message, gpointer user_data)
-{
+empty_log_handler(const gchar* log_domain, GLogLevelFlags log_level,
+	const gchar* message, gpointer user_data) {
 }
 
 /* Attempt to set a minimum stacksize. This can be important on systems with a
  * very low default, like musl.
  */
 static void
-set_stacksize(guint64 size)
-{
+set_stacksize(guint64 size) {
 #ifdef HAVE_PTHREAD_DEFAULT_NP
 	pthread_attr_t attr;
 	size_t cur_stack_size;
@@ -327,15 +318,14 @@ set_stacksize(guint64 size)
 			g_warning("set_stacksize: unable to set stack size");
 		else
 			g_info("set stack size to %" G_GUINT64_FORMAT "k",
-				size / (guint64) 1024);
+				size / (guint64)1024);
 	}
 #endif /*HAVE_PTHREAD_DEFAULT_NP*/
 }
 
 static void
-vips_verbose(void)
-{
-	const char *old;
+vips_verbose(void) {
+	const char* old;
 
 	old = g_getenv("G_MESSAGES_DEBUG");
 
@@ -343,7 +333,7 @@ vips_verbose(void)
 		g_setenv("G_MESSAGES_DEBUG", G_LOG_DOMAIN, TRUE);
 	else if (!g_str_equal(old, "all") &&
 		!g_strrstr(old, G_LOG_DOMAIN)) {
-		char *new;
+		char* new;
 
 		new = g_strconcat(old, " ", G_LOG_DOMAIN, NULL);
 		g_setenv("G_MESSAGES_DEBUG", new, TRUE);
@@ -353,8 +343,7 @@ vips_verbose(void)
 }
 
 static int
-vips_leak(void)
-{
+vips_leak(void) {
 	char txt[1024];
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
 	int n_leaks;
@@ -411,8 +400,7 @@ vips_leak(void)
  * Returns: 0 on success, -1 otherwise
  */
 int
-vips_init(const char *argv0)
-{
+vips_init(const char* argv0) {
 	extern GType vips_system_get_type(void);
 	extern GType write_thread_state_get_type(void);
 	extern GType sink_memory_thread_state_get_type(void);
@@ -425,12 +413,12 @@ vips_init(const char *argv0)
 
 	static gboolean started = FALSE;
 	static gboolean done = FALSE;
-	const char *vips_min_stack_size;
+	const char* vips_min_stack_size;
 	gint64 min_stack_size;
-	const char *prefix;
-	const char *libdir;
+	const char* prefix;
+	const char* libdir;
 #ifdef ENABLE_NLS
-	char *locale;
+	char* locale;
 #endif /* ENABLE_NLS */
 
 	/* Two stage done handling: 'done' means we've completed, 'started'
@@ -454,13 +442,11 @@ vips_init(const char *argv0)
 	min_stack_size = 2 * 1024 * 1024;
 	if ((vips_min_stack_size = g_getenv("VIPS_MIN_STACK_SIZE")))
 		min_stack_size = vips__parse_size(vips_min_stack_size);
-	(void) set_stacksize(min_stack_size);
+	(void)set_stacksize(min_stack_size);
 
 	if (g_getenv("VIPS_INFO")
-#if ENABLE_DEPRECATED
-		|| g_getenv("IM_INFO")
-#endif
-	)
+
+		)
 		vips_verbose();
 	if (g_getenv("VIPS_PROFILE"))
 		vips_profile_set(TRUE);
@@ -470,8 +456,8 @@ vips_init(const char *argv0)
 		vips_cache_set_trace(TRUE);
 	if (g_getenv("VIPS_PIPE_READ_LIMIT"))
 		vips_pipe_read_limit =
-			g_ascii_strtoll(g_getenv("VIPS_PIPE_READ_LIMIT"),
-				NULL, 10);
+		g_ascii_strtoll(g_getenv("VIPS_PIPE_READ_LIMIT"),
+			NULL, 10);
 	vips_pipe_read_limit_set(vips_pipe_read_limit);
 
 #ifdef G_OS_WIN32
@@ -494,7 +480,7 @@ vips_init(const char *argv0)
 	 * https://github.com/openslide/openslide/issues/161
 	 */
 #if !GLIB_CHECK_VERSION(2, 48, 1)
-	(void) g_get_language_names();
+	(void)g_get_language_names();
 #endif
 
 	if (!vips__global_lock)
@@ -541,21 +527,17 @@ vips_init(const char *argv0)
 
 	/* Register base vips types.
 	 */
-	(void) vips_image_get_type();
-	(void) vips_region_get_type();
-	(void) write_thread_state_get_type();
-	(void) sink_memory_thread_state_get_type();
-	(void) render_thread_state_get_type();
-	(void) vips_source_get_type();
-	(void) vips_source_custom_get_type();
-	(void) vips_target_get_type();
-	(void) vips_target_custom_get_type();
+	(void)vips_image_get_type();
+	(void)vips_region_get_type();
+	(void)write_thread_state_get_type();
+	(void)sink_memory_thread_state_get_type();
+	(void)render_thread_state_get_type();
+	(void)vips_source_get_type();
+	(void)vips_source_custom_get_type();
+	(void)vips_target_get_type();
+	(void)vips_target_custom_get_type();
 	vips__meta_init_types();
 	vips__interpolate_init();
-
-#if ENABLE_DEPRECATED
-	im__format_init();
-#endif
 
 	/* Start up operator cache.
 	 */
@@ -567,7 +549,7 @@ vips_init(const char *argv0)
 
 	/* Start up packages.
 	 */
-	(void) vips_system_get_type();
+	(void)vips_system_get_type();
 	vips_arithmetic_operation_init();
 	vips_conversion_operation_init();
 	vips_create_operation_init();
@@ -592,31 +574,6 @@ vips_init(const char *argv0)
 	 */
 	vips_load_plugins("%s/vips-modules-%d.%d",
 		libdir, VIPS_MAJOR_VERSION, VIPS_MINOR_VERSION);
-
-#if ENABLE_DEPRECATED
-	/* Load any vips8 plugins from the vips libdir.
-	 */
-	vips_load_plugins("%s/vips-plugins-%d.%d",
-		libdir, VIPS_MAJOR_VERSION, VIPS_MINOR_VERSION);
-
-	/* Load up any vips7 plugins in the vips libdir. We don't error on
-	 * failure, it's too annoying to have VIPS refuse to start because of
-	 * a broken plugin.
-	 */
-	if (im_load_plugins("%s/vips-%d.%d",
-			libdir, VIPS_MAJOR_VERSION, VIPS_MINOR_VERSION)) {
-		g_warning("%s", vips_error_buffer());
-		vips_error_clear();
-	}
-
-	/* Also load from libdir. This is old and slightly broken behaviour
-	 * :-( kept for back compat convenience.
-	 */
-	if (im_load_plugins("%s", libdir)) {
-		g_warning("%s", vips_error_buffer());
-		vips_error_clear();
-	}
-#endif /*ENABLE_DEPRECATED*/
 #endif /*ENABLE_MODULES*/
 
 	/* Get the run-time compiler going.
@@ -636,10 +593,7 @@ vips_init(const char *argv0)
 	 * env var hack as a workaround.
 	 */
 	if (g_getenv("VIPS_WARNING")
-#if ENABLE_DEPRECATED
-		|| g_getenv("IM_WARNING")
-#endif
-	)
+		)
 		g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
 			empty_log_handler, NULL);
 
@@ -658,8 +612,7 @@ vips_init(const char *argv0)
 /* Call this before vips stuff that uses stuff we need to have inited.
  */
 void
-vips_check_init(void)
-{
+vips_check_init(void) {
 	/* Pass in a nonsense name for argv0 ... this init path is only here
 	 * for old programs which are missing an vips_init() call. We need
 	 * i18n set up before we can translate.
@@ -685,8 +638,7 @@ vips_check_init(void)
  * calling it. Calling it too often will reduce performance.
  */
 void
-vips_thread_shutdown(void)
-{
+vips_thread_shutdown(void) {
 	vips__thread_profile_detach();
 	vips__buffer_shutdown();
 }
@@ -708,17 +660,12 @@ vips_thread_shutdown(void)
  * See also: vips_profile_set(), vips_leak_set().
  */
 void
-vips_shutdown(void)
-{
+vips_shutdown(void) {
 #ifdef DEBUG
 	printf("vips_shutdown:\n");
 #endif /*DEBUG*/
 
 	vips_cache_drop_all();
-
-#if ENABLE_DEPRECATED
-	im_close_plugins();
-#endif
 
 	/* Mustn't run this more than once. Don't use the VIPS_GATE macro,
 	 * since we don't for gate start.
@@ -760,18 +707,16 @@ vips_shutdown(void)
 }
 
 static gboolean
-vips_lib_info_cb(const gchar *option_name, const gchar *value,
-	gpointer data, GError **error)
-{
+vips_lib_info_cb(const gchar* option_name, const gchar* value,
+	gpointer data, GError** error) {
 	vips_verbose();
 
 	return TRUE;
 }
 
 static gboolean
-vips_set_fatal_cb(const gchar *option_name, const gchar *value,
-	gpointer data, GError **error)
-{
+vips_set_fatal_cb(const gchar* option_name, const gchar* value,
+	gpointer data, GError** error) {
 	vips__fatal = 1;
 
 	/* Set masks for debugging ... stop on any problem.
@@ -787,45 +732,40 @@ vips_set_fatal_cb(const gchar *option_name, const gchar *value,
 }
 
 static gboolean
-vips_lib_version_cb(const gchar *option_name, const gchar *value,
-	gpointer data, GError **error)
-{
+vips_lib_version_cb(const gchar* option_name, const gchar* value,
+	gpointer data, GError** error) {
 	printf("libvips %s\n", VIPS_VERSION_STRING);
 	vips_shutdown();
 	exit(0);
 }
 
 static gboolean
-vips_lib_config_cb(const gchar *option_name, const gchar *value,
-	gpointer data, GError **error)
-{
+vips_lib_config_cb(const gchar* option_name, const gchar* value,
+	gpointer data, GError** error) {
 	printf("%s\n", VIPS_CONFIG);
 	vips_shutdown();
 	exit(0);
 }
 
 static gboolean
-vips_cache_max_cb(const gchar *option_name, const gchar *value,
-	gpointer data, GError **error)
-{
+vips_cache_max_cb(const gchar* option_name, const gchar* value,
+	gpointer data, GError** error) {
 	vips_cache_set_max(vips__parse_size(value));
 
 	return TRUE;
 }
 
 static gboolean
-vips_cache_max_memory_cb(const gchar *option_name, const gchar *value,
-	gpointer data, GError **error)
-{
+vips_cache_max_memory_cb(const gchar* option_name, const gchar* value,
+	gpointer data, GError** error) {
 	vips_cache_set_max_mem(vips__parse_size(value));
 
 	return TRUE;
 }
 
 static gboolean
-vips_cache_max_files_cb(const gchar *option_name, const gchar *value,
-	gpointer data, GError **error)
-{
+vips_cache_max_files_cb(const gchar* option_name, const gchar* value,
+	gpointer data, GError** error) {
 	vips_cache_set_max_files(vips__parse_size(value));
 
 	return TRUE;
@@ -833,10 +773,10 @@ vips_cache_max_files_cb(const gchar *option_name, const gchar *value,
 
 static GOptionEntry option_entries[] = {
 	{ "vips-info", 0, G_OPTION_FLAG_HIDDEN | G_OPTION_FLAG_NO_ARG,
-		G_OPTION_ARG_CALLBACK, (gpointer) &vips_lib_info_cb,
+		G_OPTION_ARG_CALLBACK, (gpointer)&vips_lib_info_cb,
 		N_("show informative messages"), NULL },
 	{ "vips-fatal", 0, G_OPTION_FLAG_HIDDEN | G_OPTION_FLAG_NO_ARG,
-		G_OPTION_ARG_CALLBACK, (gpointer) &vips_set_fatal_cb,
+		G_OPTION_ARG_CALLBACK, (gpointer)&vips_set_fatal_cb,
 		N_("abort on first error or warning"), NULL },
 	{ "vips-concurrency", 0, 0,
 		G_OPTION_ARG_INT, &vips__concurrency,
@@ -869,13 +809,13 @@ static GOptionEntry option_entries[] = {
 		G_OPTION_ARG_NONE, &vips__vector_enabled,
 		N_("disable vectorised versions of operations"), NULL },
 	{ "vips-cache-max", 0, 0,
-		G_OPTION_ARG_CALLBACK, (gpointer) &vips_cache_max_cb,
+		G_OPTION_ARG_CALLBACK, (gpointer)&vips_cache_max_cb,
 		N_("cache at most N operations"), "N" },
 	{ "vips-cache-max-memory", 0, 0,
-		G_OPTION_ARG_CALLBACK, (gpointer) &vips_cache_max_memory_cb,
+		G_OPTION_ARG_CALLBACK, (gpointer)&vips_cache_max_memory_cb,
 		N_("cache at most N bytes in memory"), "N" },
 	{ "vips-cache-max-files", 0, 0,
-		G_OPTION_ARG_CALLBACK, (gpointer) &vips_cache_max_files_cb,
+		G_OPTION_ARG_CALLBACK, (gpointer)&vips_cache_max_files_cb,
 		N_("allow at most N open files"), "N" },
 	{ "vips-cache-trace", 0, 0,
 		G_OPTION_ARG_NONE, &vips__cache_trace,
@@ -884,13 +824,13 @@ static GOptionEntry option_entries[] = {
 		G_OPTION_ARG_NONE, &vips__cache_dump,
 		N_("dump operation cache on exit"), NULL },
 	{ "vips-version", 0, G_OPTION_FLAG_NO_ARG,
-		G_OPTION_ARG_CALLBACK, (gpointer) &vips_lib_version_cb,
+		G_OPTION_ARG_CALLBACK, (gpointer)&vips_lib_version_cb,
 		N_("print libvips version"), NULL },
 	{ "vips-config", 0, G_OPTION_FLAG_NO_ARG,
-		G_OPTION_ARG_CALLBACK, (gpointer) &vips_lib_config_cb,
+		G_OPTION_ARG_CALLBACK, (gpointer)&vips_lib_config_cb,
 		N_("print libvips config"), NULL },
 	{ "vips-pipe-read-limit", 0, 0,
-		G_OPTION_ARG_INT64, (gpointer) &vips_pipe_read_limit,
+		G_OPTION_ARG_INT64, (gpointer)&vips_pipe_read_limit,
 		N_("read at most this many bytes from a pipe"), NULL },
 	{ NULL }
 };
@@ -904,8 +844,7 @@ static GOptionEntry option_entries[] = {
  * See also: g_option_group_new().
  */
 void
-vips_add_option_entries(GOptionGroup *option_group)
-{
+vips_add_option_entries(GOptionGroup* option_group) {
 	g_option_group_add_entries(option_group, option_entries);
 }
 
@@ -918,9 +857,8 @@ vips_add_option_entries(GOptionGroup *option_group)
  *
  * all other forms ... return NULL.
  */
-static char *
-extract_prefix(const char *dir, const char *name)
-{
+static char*
+extract_prefix(const char* dir, const char* name) {
 	char edir[VIPS_PATH_MAX];
 	static char vname[VIPS_PATH_MAX];
 	int i;
@@ -930,14 +868,13 @@ extract_prefix(const char *dir, const char *name)
 	/* Is dir relative? Prefix with cwd.
 	 */
 	if (!g_path_is_absolute(dir)) {
-		char *cwd;
+		char* cwd;
 
 		cwd = g_get_current_dir();
 		vips_snprintf(edir, VIPS_PATH_MAX,
 			"%s" G_DIR_SEPARATOR_S "%s", cwd, dir);
 		g_free(cwd);
-	}
-	else {
+	} else {
 		vips_strncpy(edir, dir, VIPS_PATH_MAX);
 	}
 
@@ -951,9 +888,9 @@ extract_prefix(const char *dir, const char *name)
 
 	/* Remove any "/./", any trailing "/.", any trailing "/".
 	 */
-	for (i = 0; i < (int) strlen(vname); i++)
+	for (i = 0; i < (int)strlen(vname); i++)
 		if (vips_isprefix(G_DIR_SEPARATOR_S "." G_DIR_SEPARATOR_S,
-				vname + i))
+			vname + i))
 			memmove(vname + i, vname + i + 2,
 				strlen(vname + i + 2) + 1);
 	if (vips_ispostfix(vname, G_DIR_SEPARATOR_S "."))
@@ -976,14 +913,13 @@ extract_prefix(const char *dir, const char *name)
 
 /* Search a path for a file ... we overwrite the PATH string passed in.
  */
-static char *
-scan_path(char *path, const char *name)
-{
-	char *p, *q;
-	char *prefix;
+static char*
+scan_path(char* path, const char* name) {
+	char* p, * q;
+	char* prefix;
 
 	for (p = path;
-		 (q = vips_break_token(p, G_SEARCHPATH_SEPARATOR_S)); p = q) {
+		(q = vips_break_token(p, G_SEARCHPATH_SEPARATOR_S)); p = q) {
 		char str[VIPS_PATH_MAX];
 
 		/* Form complete path.
@@ -1005,11 +941,10 @@ scan_path(char *path, const char *name)
 
 /* Look for a file along PATH. If we find it, look for an enclosing prefix.
  */
-static char *
-find_file(const char *name)
-{
-	const char *path = g_getenv("PATH");
-	char *prefix;
+static char*
+find_file(const char* name) {
+	const char* path = g_getenv("PATH");
+	char* prefix;
 	char full_path[VIPS_PATH_MAX];
 
 	if (!path)
@@ -1019,7 +954,7 @@ find_file(const char *name)
 
 #ifdef G_OS_WIN32
 	{
-		char *dir;
+		char* dir;
 
 		/* Windows always searches '.' first, so prepend cwd to path.
 		 */
@@ -1036,20 +971,19 @@ find_file(const char *name)
 		return prefix;
 
 	return NULL;
-}
+	}
 
 /* Guess a value for the install PREFIX.
  */
-static const char *
-guess_prefix(const char *argv0, const char *name)
-{
-	char *prefix;
+static const char*
+guess_prefix(const char* argv0, const char* name) {
+	char* prefix;
 
 	/* We've already checked for VIPSHOME. If the configure-time
 	 * library prefix looks OK, use the configure-time prefix.
 	 */
 	if (vips_existsf("%s/vips-modules-%d.%d",
-			VIPS_LIBDIR, VIPS_MAJOR_VERSION, VIPS_MINOR_VERSION)) {
+		VIPS_LIBDIR, VIPS_MAJOR_VERSION, VIPS_MINOR_VERSION)) {
 		g_info("found %s/vips-modules-%d.%d",
 			VIPS_LIBDIR, VIPS_MAJOR_VERSION, VIPS_MINOR_VERSION);
 		g_info("using configure-time prefix");
@@ -1080,9 +1014,9 @@ guess_prefix(const char *argv0, const char *name)
 	 */
 	if (argv0 &&
 		!g_path_is_absolute(argv0)) {
-		char *dir;
+		char* dir;
 		char full_path[VIPS_PATH_MAX];
-		char *resolved;
+		char* resolved;
 
 		dir = g_get_current_dir();
 		vips_snprintf(full_path, VIPS_PATH_MAX,
@@ -1124,10 +1058,9 @@ guess_prefix(const char *argv0, const char *name)
  *
  * Returns: (transfer none): the install prefix as a static string, do not free.
  */
-const char *
-vips_guess_prefix(const char *argv0, const char *env_name)
-{
-	const char *prefix;
+const char*
+vips_guess_prefix(const char* argv0, const char* env_name) {
+	const char* prefix;
 
 	/* Already set?
 	 */
@@ -1138,12 +1071,12 @@ vips_guess_prefix(const char *argv0, const char *env_name)
 	prefix = vips__windows_prefix();
 #else  /*!G_OS_WIN32*/
 	{
-		char *basename;
+		char* basename;
 
 		basename = g_path_get_basename(argv0);
 		prefix = guess_prefix(argv0, basename);
 		g_free(basename);
-	}
+}
 #endif /*G_OS_WIN32*/
 
 	g_setenv(env_name, prefix, TRUE);
@@ -1171,13 +1104,12 @@ vips_guess_prefix(const char *argv0, const char *env_name)
  *
  * Returns: (transfer none): the libdir as a static string, do not free.
  */
-const char *
-vips_guess_libdir(const char *argv0, const char *env_name)
-{
-	const char *prefix = vips_guess_prefix(argv0, env_name);
-	static char *libdir = NULL;
+const char*
+vips_guess_libdir(const char* argv0, const char* env_name) {
+	const char* prefix = vips_guess_prefix(argv0, env_name);
+	static char* libdir = NULL;
 
-	char *suffix;
+	char* suffix;
 
 	if (libdir)
 		return libdir;
@@ -1208,9 +1140,8 @@ vips_guess_libdir(const char *argv0, const char *env_name)
  *
  * Returns: (transfer none): a static version string
  */
-const char *
-vips_version_string(void)
-{
+const char*
+vips_version_string(void) {
 	return VIPS_VERSION_STRING;
 }
 
@@ -1227,8 +1158,7 @@ vips_version_string(void)
  * Returns: library version number
  */
 int
-vips_version(int flag)
-{
+vips_version(int flag) {
 	switch (flag) {
 	case 0:
 		return VIPS_MAJOR_VERSION;
@@ -1264,14 +1194,12 @@ vips_version(int flag)
  * You should call this very early in your program.
  */
 void
-vips_leak_set(gboolean leak)
-{
+vips_leak_set(gboolean leak) {
 	vips__leak = leak;
 }
 
-static void *
-vips_block_untrusted_set_operation(VipsOperationClass *class, gboolean *state)
-{
+static void*
+vips_block_untrusted_set_operation(VipsOperationClass* class, gboolean* state) {
 	g_assert(VIPS_IS_OPERATION_CLASS(class));
 
 	if (class->flags & VIPS_OPERATION_UNTRUSTED)
@@ -1300,8 +1228,7 @@ vips_block_untrusted_set_operation(VipsOperationClass *class, gboolean *state)
  * operations on vips_init().
  */
 void
-vips_block_untrusted_set(gboolean state)
-{
+vips_block_untrusted_set(gboolean state) {
 	vips_class_map_all(g_type_from_name("VipsOperation"),
-		(VipsClassMapFn) vips_block_untrusted_set_operation, &state);
+		(VipsClassMapFn)vips_block_untrusted_set_operation, &state);
 }

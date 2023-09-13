@@ -4,52 +4,52 @@
  * 	- from morph hacking
  */
 
-/*
+ /*
 
-	This file is part of VIPS.
+	 This file is part of VIPS.
 
-	VIPS is free software; you can redistribute it and/or modify
-	it under the terms of the GNU Lesser General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	 VIPS is free software; you can redistribute it and/or modify
+	 it under the terms of the GNU Lesser General Public License as published by
+	 the Free Software Foundation; either version 2 of the License, or
+	 (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Lesser General Public License for more details.
+	 This program is distributed in the hope that it will be useful,
+	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU Lesser General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-	02110-1301  USA
+	 You should have received a copy of the GNU Lesser General Public License
+	 along with this program; if not, write to the Free Software
+	 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+	 02110-1301  USA
 
- */
+  */
 
-/*
+  /*
 
-	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
+	  These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+   */
 
-/*
+   /*
 
-	TODO
+	   TODO
 
-	- would setting params by index rather than name be any quicker?
+	   - would setting params by index rather than name be any quicker?
 
- */
+	*/
 
-/* Verbose messages from Orc (or use ORC_DEBUG=99 on the command-line).
-#define DEBUG_ORC
- */
+	/* Verbose messages from Orc (or use ORC_DEBUG=99 on the command-line).
+	#define DEBUG_ORC
+	 */
 
-/*
-#define DEBUG
- */
+	 /*
+	 #define DEBUG
+	  */
 
-/* Trace all orc calls, handy for debugging.
-#define DEBUG_TRACE
- */
+	  /* Trace all orc calls, handy for debugging.
+	  #define DEBUG_TRACE
+	   */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -64,14 +64,13 @@
 #include <vips/internal.h>
 #include <vips/thread.h>
 
-/* Cleared by the command-line --vips-novector switch and the VIPS_NOVECTOR env
- * var.
- */
+	   /* Cleared by the command-line --vips-novector switch and the VIPS_NOVECTOR env
+		* var.
+		*/
 gboolean vips__vector_enabled = TRUE;
 
 static void
-vips_vector_error(VipsVector *vector)
-{
+vips_vector_error(VipsVector* vector) {
 #ifdef HAVE_ORC
 #ifdef HAVE_ORC_PROGRAM_GET_ERROR
 	if (vector->program)
@@ -82,8 +81,7 @@ vips_vector_error(VipsVector *vector)
 }
 
 void
-vips_vector_init(void)
-{
+vips_vector_init(void) {
 #ifdef HAVE_ORC
 #ifdef DEBUG_TRACE
 	printf("orc_init();\n");
@@ -103,18 +101,14 @@ vips_vector_init(void)
 	 * off as well.
 	 */
 	if (g_getenv("VIPS_NOVECTOR")
-#if ENABLE_DEPRECATED
-		|| g_getenv("IM_NOVECTOR")
-#endif
-	)
+		)
 		vips__vector_enabled = FALSE;
 
 #endif /*HAVE_ORC*/
 }
 
 gboolean
-vips_vector_isenabled(void)
-{
+vips_vector_isenabled(void) {
 #ifdef HAVE_ORC
 	return vips__vector_enabled;
 #else  /*!HAVE_ORC*/
@@ -123,14 +117,12 @@ vips_vector_isenabled(void)
 }
 
 void
-vips_vector_set_enabled(gboolean enabled)
-{
+vips_vector_set_enabled(gboolean enabled) {
 	vips__vector_enabled = enabled;
 }
 
 void
-vips_vector_free(VipsVector *vector)
-{
+vips_vector_free(VipsVector* vector) {
 #ifdef HAVE_ORC
 	/* orc-0.4.19 will crash if you free programs. Update your orc, or
 	 * comment out this line.
@@ -150,12 +142,11 @@ vips_vector_free(VipsVector *vector)
 	VIPS_FREE(vector);
 }
 
-VipsVector *
-vips_vector_new(const char *name, int dsize)
-{
+VipsVector*
+vips_vector_new(const char* name, int dsize) {
 	static int vector_number = 0;
 
-	VipsVector *vector;
+	VipsVector* vector;
 	int i;
 
 	if (!(vector = VIPS_NEW(NULL, VipsVector)))
@@ -199,9 +190,8 @@ vips_vector_new(const char *name, int dsize)
 }
 
 void
-vips_vector_asm2(VipsVector *vector,
-	const char *op, const char *a, const char *b)
-{
+vips_vector_asm2(VipsVector* vector,
+	const char* op, const char* a, const char* b) {
 	vector->n_instruction += 1;
 
 #ifdef DEBUG
@@ -218,9 +208,8 @@ vips_vector_asm2(VipsVector *vector,
 }
 
 void
-vips_vector_asm3(VipsVector *vector,
-	const char *op, const char *a, const char *b, const char *c)
-{
+vips_vector_asm3(VipsVector* vector,
+	const char* op, const char* a, const char* b, const char* c) {
 	vector->n_instruction += 1;
 
 #ifdef DEBUG
@@ -230,7 +219,7 @@ vips_vector_asm3(VipsVector *vector,
 #ifdef HAVE_ORC
 #ifdef DEBUG_TRACE
 	printf("orc_program_append_str(%s, \"%s\", "
-		   "\"%s\", \"%s\", \"%s\");\n",
+		"\"%s\", \"%s\", \"%s\");\n",
 		vector->unique_name, op, a, b, c);
 #endif /*DEBUG_TRACE*/
 	orc_program_append_str(vector->program, op, a, b, c);
@@ -238,10 +227,9 @@ vips_vector_asm3(VipsVector *vector,
 }
 
 void
-vips_vector_constant(VipsVector *vector, char *name, int value, int size)
-{
+vips_vector_constant(VipsVector* vector, char* name, int value, int size) {
 #ifdef HAVE_ORC
-	char *sname;
+	char* sname;
 
 	if (size == 1)
 		sname = "b";
@@ -268,7 +256,7 @@ vips_vector_constant(VipsVector *vector, char *name, int value, int size)
 			vector->unique_name, size, value, name);
 #endif /*DEBUG_TRACE*/
 		if (!orc_program_add_constant(vector->program,
-				size, value, name))
+			size, value, name))
 			vips_vector_error(vector);
 		vector->n_constant += 1;
 	}
@@ -276,9 +264,8 @@ vips_vector_constant(VipsVector *vector, char *name, int value, int size)
 }
 
 void
-vips_vector_source_scanline(VipsVector *vector,
-	char *name, int line, int size)
-{
+vips_vector_source_scanline(VipsVector* vector,
+	char* name, int line, int size) {
 #ifdef HAVE_ORC
 	vips_snprintf(name, 256, "sl%d", line);
 
@@ -286,7 +273,7 @@ vips_vector_source_scanline(VipsVector *vector,
 		int var;
 
 		if (!(var = orc_program_add_source(vector->program,
-				  size, name)))
+			size, name)))
 			vips_vector_error(vector);
 #ifdef DEBUG_TRACE
 		printf("orc_program_add_source(%s, %d, \"%s\");\n",
@@ -300,8 +287,7 @@ vips_vector_source_scanline(VipsVector *vector,
 }
 
 int
-vips_vector_source_name(VipsVector *vector, const char *name, int size)
-{
+vips_vector_source_name(VipsVector* vector, const char* name, int size) {
 	int var;
 
 #ifdef HAVE_ORC
@@ -323,8 +309,7 @@ vips_vector_source_name(VipsVector *vector, const char *name, int size)
 }
 
 void
-vips_vector_temporary(VipsVector *vector, const char *name, int size)
-{
+vips_vector_temporary(VipsVector* vector, const char* name, int size) {
 #ifdef HAVE_ORC
 	g_assert(orc_program_find_var_by_name(vector->program, name) == -1);
 
@@ -340,8 +325,7 @@ vips_vector_temporary(VipsVector *vector, const char *name, int size)
 }
 
 int
-vips_vector_parameter(VipsVector *vector, const char *name, int size)
-{
+vips_vector_parameter(VipsVector* vector, const char* name, int size) {
 	int var;
 
 #ifdef HAVE_ORC
@@ -364,8 +348,7 @@ vips_vector_parameter(VipsVector *vector, const char *name, int size)
 }
 
 int
-vips_vector_destination(VipsVector *vector, const char *name, int size)
-{
+vips_vector_destination(VipsVector* vector, const char* name, int size) {
 	int var;
 
 #ifdef HAVE_ORC
@@ -385,15 +368,14 @@ vips_vector_destination(VipsVector *vector, const char *name, int size)
 }
 
 gboolean
-vips_vector_full(VipsVector *vector)
-{
+vips_vector_full(VipsVector* vector) {
 	/* Many orcs don't have ORC_MAX_CONST_VARS etc., stick to our own
 	 * constants for now.
 	 */
 
-	/* We can need a max of 2 constants plus one source per
-	 * coefficient, so stop if we're sure we don't have enough.
-	 */
+	 /* We can need a max of 2 constants plus one source per
+	  * coefficient, so stop if we're sure we don't have enough.
+	  */
 	if (vector->n_constant + 2 > 8 /*ORC_MAX_CONST_VARS*/)
 		return TRUE;
 
@@ -418,8 +400,7 @@ vips_vector_full(VipsVector *vector)
 }
 
 gboolean
-vips_vector_compile(VipsVector *vector)
-{
+vips_vector_compile(VipsVector* vector) {
 #ifdef HAVE_ORC
 	OrcCompileResult result;
 
@@ -447,8 +428,7 @@ vips_vector_compile(VipsVector *vector)
 }
 
 void
-vips_vector_print(VipsVector *vector)
-{
+vips_vector_print(VipsVector* vector) {
 	int i;
 
 	printf("%s: ", vector->name);
@@ -471,8 +451,7 @@ vips_vector_print(VipsVector *vector)
 }
 
 void
-vips_executor_set_program(VipsExecutor *executor, VipsVector *vector, int n)
-{
+vips_executor_set_program(VipsExecutor* executor, VipsVector* vector, int n) {
 #ifdef HAVE_ORC
 	executor->vector = vector;
 
@@ -482,8 +461,7 @@ vips_executor_set_program(VipsExecutor *executor, VipsVector *vector, int n)
 }
 
 void
-vips_executor_set_array(VipsExecutor *executor, int var, void *value)
-{
+vips_executor_set_array(VipsExecutor* executor, int var, void* value) {
 #ifdef HAVE_ORC
 	if (var != -1)
 		orc_executor_set_array(&executor->executor, var, value);
@@ -491,8 +469,7 @@ vips_executor_set_array(VipsExecutor *executor, int var, void *value)
 }
 
 void
-vips_executor_set_parameter(VipsExecutor *executor, int var, int value)
-{
+vips_executor_set_parameter(VipsExecutor* executor, int var, int value) {
 #ifdef HAVE_ORC
 	if (var != -1)
 		orc_executor_set_param(&executor->executor, var, value);
@@ -500,11 +477,10 @@ vips_executor_set_parameter(VipsExecutor *executor, int var, int value)
 }
 
 void
-vips_executor_set_scanline(VipsExecutor *executor,
-	VipsRegion *ir, int x, int y)
-{
-	VipsVector *vector = executor->vector;
-	VipsPel *base = VIPS_REGION_ADDR(ir, x, y);
+vips_executor_set_scanline(VipsExecutor* executor,
+	VipsRegion* ir, int x, int y) {
+	VipsVector* vector = executor->vector;
+	VipsPel* base = VIPS_REGION_ADDR(ir, x, y);
 	int lsk = VIPS_REGION_LSKIP(ir);
 
 	int i;
@@ -515,16 +491,14 @@ vips_executor_set_scanline(VipsExecutor *executor,
 }
 
 void
-vips_executor_set_destination(VipsExecutor *executor, void *value)
-{
-	VipsVector *vector = executor->vector;
+vips_executor_set_destination(VipsExecutor* executor, void* value) {
+	VipsVector* vector = executor->vector;
 
 	vips_executor_set_array(executor, vector->d1, value);
 }
 
 void
-vips_executor_run(VipsExecutor *executor)
-{
+vips_executor_run(VipsExecutor* executor) {
 #ifdef HAVE_ORC
 	orc_executor_run(&executor->executor);
 #endif /*HAVE_ORC*/
@@ -538,8 +512,7 @@ vips_executor_run(VipsExecutor *executor)
  * iterate and converge on the best value for adj_scale.
  */
 void
-vips_vector_to_fixed_point(double *in, int *out, int n, int scale)
-{
+vips_vector_to_fixed_point(double* in, int* out, int n, int scale) {
 	double fsum;
 	int i;
 	int target;

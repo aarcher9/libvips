@@ -40,37 +40,37 @@
  * 	- lock for metadata changes
  */
 
-/*
+ /*
 
-	This file is part of VIPS.
+	 This file is part of VIPS.
 
-	VIPS is free software; you can redistribute it and/or modify
-	it under the terms of the GNU Lesser General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	 VIPS is free software; you can redistribute it and/or modify
+	 it under the terms of the GNU Lesser General Public License as published by
+	 the Free Software Foundation; either version 2 of the License, or
+	 (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Lesser General Public License for more details.
+	 This program is distributed in the hope that it will be useful,
+	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU Lesser General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-	02110-1301  USA
+	 You should have received a copy of the GNU Lesser General Public License
+	 along with this program; if not, write to the Free Software
+	 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+	 02110-1301  USA
 
- */
+  */
 
-/*
+  /*
 
-	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
+	  These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+   */
 
-/*
-#define VIPS_DEBUG
-#define DEBUG
- */
+   /*
+   #define VIPS_DEBUG
+   #define DEBUG
+	*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -86,69 +86,63 @@
 #include <vips/internal.h>
 #include <vips/debug.h>
 
-/* For the vips__image_sizeof_bandformat declaration.
- */
-#if ENABLE_DEPRECATED
-#include <vips/vips7compat.h>
-#endif
+	/**
+	 * SECTION: header
+	 * @short_description: get, set and walk image headers
+	 * @stability: Stable
+	 * @see_also: <link linkend="libvips-type">type</link>
+	 * @include: vips/vips.h
+	 *
+	 * These functions let you get at image header data (including metadata) in a
+	 * uniform way.
+	 *
+	 * Use vips_image_get_typeof() to test for the
+	 * existence and #GType of a header field.
+	 *
+	 * You can attach arbitrary metadata to images. Metadata is copied as images
+	 * are processed, so all images which used this image as input, directly or
+	 * indirectly, will have this same bit of metadata attached to them. Copying
+	 * is implemented with reference-counted pointers, so it is efficient, even for
+	 * large items of data. This does however mean that metadata items need to be
+	 * immutable. Metadata is handy for things like ICC profiles or EXIF data.
+	 *
+	 * Various convenience functions (eg. vips_image_set_int()) let you easily
+	 * attach
+	 * simple types like
+	 * numbers, strings and memory blocks to images. Use vips_image_map() to loop
+	 * over an image's fields, including all metadata.
+	 *
+	 * Items of metadata are identified by strings. Some strings are reserved, for
+	 * example the ICC profile for an image is known by convention as
+	 * "icc-profile-data".
+	 *
+	 * If you save an image in VIPS format, all metadata (with a restriction, see
+	 * below) is automatically saved for you in a block of XML at the end of the
+	 * file. When you load a VIPS image, the metadata is restored. You can use the
+	 * `vipsedit` command-line tool to extract or replace this block of XML.
+	 *
+	 * VIPS metadata is based on %GValue. See the docs for that system if you want
+	 * to do fancy stuff such as defining a new metadata type.
+	 * VIPS defines a new %GValue called `vips_save_string`, a variety of string,
+	 * see vips_value_set_save_string().
+	 * If your %GValue can be transformed to `vips_save_string`, it will be
+	 * saved and loaded to and from VIPS files for you.
+	 *
+	 * VIPS provides a couple of base classes which implement
+	 * reference-counted areas of memory. If you base your metadata on one of
+	 * these types, it can be copied between images efficiently.
+	 */
 
-/**
- * SECTION: header
- * @short_description: get, set and walk image headers
- * @stability: Stable
- * @see_also: <link linkend="libvips-type">type</link>
- * @include: vips/vips.h
- *
- * These functions let you get at image header data (including metadata) in a
- * uniform way.
- *
- * Use vips_image_get_typeof() to test for the
- * existence and #GType of a header field.
- *
- * You can attach arbitrary metadata to images. Metadata is copied as images
- * are processed, so all images which used this image as input, directly or
- * indirectly, will have this same bit of metadata attached to them. Copying
- * is implemented with reference-counted pointers, so it is efficient, even for
- * large items of data. This does however mean that metadata items need to be
- * immutable. Metadata is handy for things like ICC profiles or EXIF data.
- *
- * Various convenience functions (eg. vips_image_set_int()) let you easily
- * attach
- * simple types like
- * numbers, strings and memory blocks to images. Use vips_image_map() to loop
- * over an image's fields, including all metadata.
- *
- * Items of metadata are identified by strings. Some strings are reserved, for
- * example the ICC profile for an image is known by convention as
- * "icc-profile-data".
- *
- * If you save an image in VIPS format, all metadata (with a restriction, see
- * below) is automatically saved for you in a block of XML at the end of the
- * file. When you load a VIPS image, the metadata is restored. You can use the
- * `vipsedit` command-line tool to extract or replace this block of XML.
- *
- * VIPS metadata is based on %GValue. See the docs for that system if you want
- * to do fancy stuff such as defining a new metadata type.
- * VIPS defines a new %GValue called `vips_save_string`, a variety of string,
- * see vips_value_set_save_string().
- * If your %GValue can be transformed to `vips_save_string`, it will be
- * saved and loaded to and from VIPS files for you.
- *
- * VIPS provides a couple of base classes which implement
- * reference-counted areas of memory. If you base your metadata on one of
- * these types, it can be copied between images efficiently.
- */
-
-/* Use in various small places where we need a mutex and it's not worth
- * making a private one.
- */
-static GMutex *vips__meta_lock = NULL;
+	 /* Use in various small places where we need a mutex and it's not worth
+	  * making a private one.
+	  */
+static GMutex* vips__meta_lock = NULL;
 
 /* We have to keep the gtype as a string, since we statically init this.
  */
 typedef struct _HeaderField {
-	const char *name;
-	const char *type;
+	const char* name;
+	const char* type;
 	glong offset;
 } HeaderField;
 
@@ -214,8 +208,7 @@ const guint64 vips__image_sizeof_bandformat[] = {
  * Returns: number of bytes for a band format.
  */
 guint64
-vips_format_sizeof(VipsBandFormat format)
-{
+vips_format_sizeof(VipsBandFormat format) {
 	format = VIPS_CLIP(0, format, VIPS_FORMAT_DPCOMPLEX);
 
 	return vips__image_sizeof_bandformat[format];
@@ -231,8 +224,7 @@ vips_format_sizeof(VipsBandFormat format)
  * Returns: number of bytes for a band format.
  */
 guint64
-vips_format_sizeof_unsafe(VipsBandFormat format)
-{
+vips_format_sizeof_unsafe(VipsBandFormat format) {
 	g_assert(0 <= format && format <= VIPS_FORMAT_DPCOMPLEX);
 
 	return vips__image_sizeof_bandformat[format];
@@ -241,10 +233,9 @@ vips_format_sizeof_unsafe(VipsBandFormat format)
 #ifdef DEBUG
 /* Check that this meta is on the hash table.
  */
-static void *
-meta_sanity_on_hash(VipsMeta *meta, VipsImage *im, void *b)
-{
-	VipsMeta *found;
+static void*
+meta_sanity_on_hash(VipsMeta* meta, VipsImage* im, void* b) {
+	VipsMeta* found;
 
 	if (meta->im != im)
 		printf("*** field \"%s\" has incorrect im\n",
@@ -262,8 +253,7 @@ meta_sanity_on_hash(VipsMeta *meta, VipsImage *im, void *b)
 }
 
 static void
-meta_sanity_on_traverse(const char *name, VipsMeta *meta, VipsImage *im)
-{
+meta_sanity_on_traverse(const char* name, VipsMeta* meta, VipsImage* im) {
 	if (meta->name != name)
 		printf("*** field \"%s\" has incorrect name\n",
 			meta->name);
@@ -278,22 +268,20 @@ meta_sanity_on_traverse(const char *name, VipsMeta *meta, VipsImage *im)
 }
 
 static void
-meta_sanity(const VipsImage *im)
-{
+meta_sanity(const VipsImage* im) {
 	if (im->meta)
 		g_hash_table_foreach(im->meta,
-			(GHFunc) meta_sanity_on_traverse, (void *) im);
+			(GHFunc)meta_sanity_on_traverse, (void*)im);
 	vips_slist_map2(im->meta_traverse,
-		(VipsSListMap2Fn) meta_sanity_on_hash, (void *) im, NULL);
+		(VipsSListMap2Fn)meta_sanity_on_hash, (void*)im, NULL);
 }
 #endif /*DEBUG*/
 
 static void
-meta_free(VipsMeta *meta)
-{
+meta_free(VipsMeta* meta) {
 #ifdef DEBUG
 	{
-		char *str_value;
+		char* str_value;
 
 		str_value = g_strdup_value_contents(&meta->value);
 		printf("meta_free: name %s, value = %s\n",
@@ -304,17 +292,16 @@ meta_free(VipsMeta *meta)
 
 	if (meta->im)
 		meta->im->meta_traverse =
-			g_slist_remove(meta->im->meta_traverse, meta);
+		g_slist_remove(meta->im->meta_traverse, meta);
 
 	g_value_unset(&meta->value);
 	g_free(meta->name);
 	g_free(meta);
-}
+	}
 
-static VipsMeta *
-meta_new(VipsImage *image, const char *name, GValue *value)
-{
-	VipsMeta *meta;
+static VipsMeta*
+meta_new(VipsImage* image, const char* name, GValue* value) {
+	VipsMeta* meta;
 
 	meta = g_new(VipsMeta, 1);
 	meta->im = image;
@@ -336,14 +323,14 @@ meta_new(VipsImage *image, const char *name, GValue *value)
 
 	/* We don't do any conversions that can fail.
 	 */
-	(void) g_value_transform(value, &meta->value);
+	(void)g_value_transform(value, &meta->value);
 
 	image->meta_traverse = g_slist_append(image->meta_traverse, meta);
 	g_hash_table_replace(image->meta, meta->name, meta);
 
 #ifdef DEBUG
 	{
-		char *str_value;
+		char* str_value;
 
 		str_value = g_strdup_value_contents(value);
 		printf("meta_new: name %s, value = %s\n", name, str_value);
@@ -357,19 +344,17 @@ meta_new(VipsImage *image, const char *name, GValue *value)
 /* Destroy all the meta on an image.
  */
 void
-vips__meta_destroy(VipsImage *image)
-{
+vips__meta_destroy(VipsImage* image) {
 	VIPS_FREEF(g_hash_table_destroy, image->meta);
 	g_assert(!image->meta_traverse);
 }
 
 static void
-meta_init(VipsImage *im)
-{
+meta_init(VipsImage* im) {
 	if (!im->meta) {
 		g_assert(!im->meta_traverse);
 		im->meta = g_hash_table_new_full(g_str_hash, g_str_equal,
-			NULL, (GDestroyNotify) meta_free);
+			NULL, (GDestroyNotify)meta_free);
 	}
 }
 
@@ -380,8 +365,7 @@ meta_init(VipsImage *im)
  * Returns: the number of pixels across the image.
  */
 int
-vips_image_get_width(const VipsImage *image)
-{
+vips_image_get_width(const VipsImage* image) {
 	return image->Xsize;
 }
 
@@ -392,8 +376,7 @@ vips_image_get_width(const VipsImage *image)
  * Returns: the number of pixels down the image.
  */
 int
-vips_image_get_height(const VipsImage *image)
-{
+vips_image_get_height(const VipsImage* image) {
 	return image->Ysize;
 }
 
@@ -404,8 +387,7 @@ vips_image_get_height(const VipsImage *image)
  * Returns: the number of bands (channels) in the image.
  */
 int
-vips_image_get_bands(const VipsImage *image)
-{
+vips_image_get_bands(const VipsImage* image) {
 	return image->Bands;
 }
 
@@ -416,8 +398,7 @@ vips_image_get_bands(const VipsImage *image)
  * Returns: the format of each band element.
  */
 VipsBandFormat
-vips_image_get_format(const VipsImage *image)
-{
+vips_image_get_format(const VipsImage* image) {
 	return image->BandFmt;
 }
 
@@ -428,8 +409,7 @@ vips_image_get_format(const VipsImage *image)
  * Returns: the maximum numeric value possible for this format.
  */
 double
-vips_image_get_format_max(VipsBandFormat format)
-{
+vips_image_get_format_max(VipsBandFormat format) {
 	switch (format) {
 	case VIPS_FORMAT_UCHAR:
 		return UCHAR_MAX;
@@ -474,8 +454,7 @@ vips_image_get_format_max(VipsBandFormat format)
  * Returns: a sensible #VipsBandFormat for the image.
  */
 VipsBandFormat
-vips_image_guess_format(const VipsImage *image)
-{
+vips_image_guess_format(const VipsImage* image) {
 	VipsBandFormat format;
 
 	/* Stop a compiler warning.
@@ -554,8 +533,7 @@ vips_image_guess_format(const VipsImage *image)
  * Returns: the image coding
  */
 VipsCoding
-vips_image_get_coding(const VipsImage *image)
-{
+vips_image_get_coding(const VipsImage* image) {
 	return image->Coding;
 }
 
@@ -569,16 +547,14 @@ vips_image_get_coding(const VipsImage *image)
  * Returns: the #VipsInterpretation from the image header.
  */
 VipsInterpretation
-vips_image_get_interpretation(const VipsImage *image)
-{
+vips_image_get_interpretation(const VipsImage* image) {
 	return image->Type;
 }
 
 /* Try to guess a sane value for interpretation.
  */
 static VipsInterpretation
-vips_image_default_interpretation(const VipsImage *image)
-{
+vips_image_default_interpretation(const VipsImage* image) {
 	switch (image->Coding) {
 	case VIPS_CODING_LABQ:
 		return VIPS_INTERPRETATION_LABQ;
@@ -663,8 +639,7 @@ vips_image_default_interpretation(const VipsImage *image)
  * Returns: a sensible #VipsInterpretation for the image.
  */
 VipsInterpretation
-vips_image_guess_interpretation(const VipsImage *image)
-{
+vips_image_guess_interpretation(const VipsImage* image) {
 	gboolean sane;
 
 	sane = TRUE;
@@ -789,8 +764,7 @@ vips_image_guess_interpretation(const VipsImage *image)
  * Returns: the horizontal image resolution in pixels per millimeter.
  */
 double
-vips_image_get_xres(const VipsImage *image)
-{
+vips_image_get_xres(const VipsImage* image) {
 	return image->Xres;
 }
 
@@ -801,8 +775,7 @@ vips_image_get_xres(const VipsImage *image)
  * Returns: the vertical image resolution in pixels per millimeter.
  */
 double
-vips_image_get_yres(const VipsImage *image)
-{
+vips_image_get_yres(const VipsImage* image) {
 	return image->Yres;
 }
 
@@ -813,8 +786,7 @@ vips_image_get_yres(const VipsImage *image)
  * Returns: the horizontal position of the image origin, in pixels.
  */
 int
-vips_image_get_xoffset(const VipsImage *image)
-{
+vips_image_get_xoffset(const VipsImage* image) {
 	return image->Xoffset;
 }
 
@@ -825,8 +797,7 @@ vips_image_get_xoffset(const VipsImage *image)
  * Returns: the vertical position of the image origin, in pixels.
  */
 int
-vips_image_get_yoffset(const VipsImage *image)
-{
+vips_image_get_yoffset(const VipsImage* image) {
 	return image->Yoffset;
 }
 
@@ -837,9 +808,8 @@ vips_image_get_yoffset(const VipsImage *image)
  * Returns: the name of the file the image was loaded from, or NULL if there
  * is no filename.
  */
-const char *
-vips_image_get_filename(const VipsImage *image)
-{
+const char*
+vips_image_get_filename(const VipsImage* image) {
 	return image->filename;
 }
 
@@ -852,9 +822,8 @@ vips_image_get_filename(const VipsImage *image)
  *
  * Returns: the image mode.
  */
-const char *
-vips_image_get_mode(const VipsImage *image)
-{
+const char*
+vips_image_get_mode(const VipsImage* image) {
 	return image->mode;
 }
 
@@ -868,8 +837,7 @@ vips_image_get_mode(const VipsImage *image)
  * Returns: the scale.
  */
 double
-vips_image_get_scale(const VipsImage *image)
-{
+vips_image_get_scale(const VipsImage* image) {
 	double scale;
 
 	scale = 1.0;
@@ -889,8 +857,7 @@ vips_image_get_scale(const VipsImage *image)
  * Returns: the offset.
  */
 double
-vips_image_get_offset(const VipsImage *image)
-{
+vips_image_get_offset(const VipsImage* image) {
 	double offset;
 
 	offset = 0.0;
@@ -910,8 +877,7 @@ vips_image_get_offset(const VipsImage *image)
  * Returns: the page height.
  */
 int
-vips_image_get_page_height(VipsImage *image)
-{
+vips_image_get_page_height(VipsImage* image) {
 	int page_height;
 
 	if (vips_image_get_typeof(image, VIPS_META_PAGE_HEIGHT) &&
@@ -938,8 +904,7 @@ vips_image_get_page_height(VipsImage *image)
  * Returns: the number of pages in the image file
  */
 int
-vips_image_get_n_pages(VipsImage *image)
-{
+vips_image_get_n_pages(VipsImage* image) {
 	int n_pages;
 
 	if (vips_image_get_typeof(image, VIPS_META_N_PAGES) &&
@@ -961,8 +926,7 @@ vips_image_get_n_pages(VipsImage *image)
  * Returns: the suggested concurrency for this image
  */
 int
-vips_image_get_concurrency(VipsImage *image, int default_concurrency)
-{
+vips_image_get_concurrency(VipsImage* image, int default_concurrency) {
 	int concurrency;
 
 	if (vips_image_get_typeof(image, VIPS_META_CONCURRENCY) &&
@@ -985,8 +949,7 @@ vips_image_get_concurrency(VipsImage *image, int default_concurrency)
  * Returns: the number of subifds in the image file
  */
 int
-vips_image_get_n_subifds(VipsImage *image)
-{
+vips_image_get_n_subifds(VipsImage* image) {
 	int n_subifds;
 
 	if (vips_image_get_typeof(image, VIPS_META_N_SUBIFDS) &&
@@ -1008,8 +971,7 @@ vips_image_get_n_subifds(VipsImage *image)
  * Returns: the image orientation.
  */
 int
-vips_image_get_orientation(VipsImage *image)
-{
+vips_image_get_orientation(VipsImage* image) {
 	int orientation;
 
 	if (vips_image_get_typeof(image, VIPS_META_ORIENTATION) &&
@@ -1031,8 +993,7 @@ vips_image_get_orientation(VipsImage *image)
  * Returns: if width/height will swap
  */
 gboolean
-vips_image_get_orientation_swap(VipsImage *image)
-{
+vips_image_get_orientation_swap(VipsImage* image) {
 	int orientation = vips_image_get_orientation(image);
 
 	return orientation >= 5 &&
@@ -1054,9 +1015,8 @@ vips_image_get_orientation_swap(VipsImage *image)
  *
  * Returns: (transfer none): a pointer to pixel data, if possible.
  */
-const void *
-vips_image_get_data(VipsImage *image)
-{
+const void*
+vips_image_get_data(VipsImage* image) {
 	if (vips_image_wio_input(image))
 		return NULL;
 
@@ -1085,12 +1045,11 @@ vips_image_get_data(VipsImage *image)
  * See also: vips_image_pipelinev().
  */
 void
-vips_image_init_fields(VipsImage *image,
+vips_image_init_fields(VipsImage* image,
 	int xsize, int ysize, int bands,
 	VipsBandFormat format, VipsCoding coding,
 	VipsInterpretation interpretation,
-	double xres, double yres)
-{
+	double xres, double yres) {
 	g_object_set(image,
 		"width", xsize,
 		"height", ysize,
@@ -1104,12 +1063,11 @@ vips_image_init_fields(VipsImage *image,
 	image->Yres = VIPS_MAX(0, yres);
 }
 
-static void *
-meta_cp_field(VipsMeta *meta, VipsImage *dst, void *b)
-{
+static void*
+meta_cp_field(VipsMeta* meta, VipsImage* dst, void* b) {
 #ifdef DEBUG
 	{
-		char *str_value;
+		char* str_value;
 
 		str_value = g_strdup_value_contents(&meta->value);
 		printf("vips__meta_cp: copying name %s, value = %s\n",
@@ -1118,20 +1076,19 @@ meta_cp_field(VipsMeta *meta, VipsImage *dst, void *b)
 	}
 #endif /*DEBUG*/
 
-	(void) meta_new(dst, meta->name, &meta->value);
+	(void)meta_new(dst, meta->name, &meta->value);
 
 #ifdef DEBUG
 	meta_sanity(dst);
 #endif /*DEBUG*/
 
 	return NULL;
-}
+	}
 
 /* Copy meta on to dst.
  */
 int
-vips__image_meta_copy(VipsImage *dst, const VipsImage *src)
-{
+vips__image_meta_copy(VipsImage* dst, const VipsImage* src) {
 	if (src->meta) {
 		/* We lock with vips_image_set() to stop races in highly-
 		 * threaded applications.
@@ -1139,7 +1096,7 @@ vips__image_meta_copy(VipsImage *dst, const VipsImage *src)
 		g_mutex_lock(vips__meta_lock);
 		meta_init(dst);
 		vips_slist_map2(src->meta_traverse,
-			(VipsSListMap2Fn) meta_cp_field, dst, NULL);
+			(VipsSListMap2Fn)meta_cp_field, dst, NULL);
 		g_mutex_unlock(vips__meta_lock);
 	}
 
@@ -1150,8 +1107,7 @@ vips__image_meta_copy(VipsImage *dst, const VipsImage *src)
  * vips7 API.
  */
 int
-vips__image_copy_fields_array(VipsImage *out, VipsImage *in[])
-{
+vips__image_copy_fields_array(VipsImage* out, VipsImage* in[]) {
 	int i;
 	int ni;
 
@@ -1223,8 +1179,7 @@ vips__image_copy_fields_array(VipsImage *out, VipsImage *in[])
  * See also: vips_image_get().
  */
 void
-vips_image_set(VipsImage *image, const char *name, GValue *value)
-{
+vips_image_set(VipsImage* image, const char* name, GValue* value) {
 	g_assert(name);
 	g_assert(value);
 
@@ -1237,7 +1192,7 @@ vips_image_set(VipsImage *image, const char *name, GValue *value)
 	 */
 	g_mutex_lock(vips__meta_lock);
 	meta_init(image);
-	(void) meta_new(image, name, value);
+	(void)meta_new(image, name, value);
 	g_mutex_unlock(vips__meta_lock);
 
 	/* If we're setting an EXIF data block, we need to automatically expand
@@ -1259,8 +1214,7 @@ vips_image_set(VipsImage *image, const char *name, GValue *value)
  * built-in types.
  */
 static void
-vips_set_value_from_pointer(GValue *value, void *data)
-{
+vips_set_value_from_pointer(GValue* value, void* data) {
 	GType type = G_VALUE_TYPE(value);
 
 	/* The fundamental type ... eg. G_TYPE_ENUM for a VIPS_TYPE_KERNEL,
@@ -1269,13 +1223,13 @@ vips_set_value_from_pointer(GValue *value, void *data)
 	GType fundamental = G_TYPE_FUNDAMENTAL(type);
 
 	if (fundamental == G_TYPE_INT)
-		g_value_set_int(value, *((int *) data));
+		g_value_set_int(value, *((int*)data));
 	else if (fundamental == G_TYPE_DOUBLE)
-		g_value_set_double(value, *((double *) data));
+		g_value_set_double(value, *((double*)data));
 	else if (fundamental == G_TYPE_ENUM)
-		g_value_set_enum(value, *((int *) data));
+		g_value_set_enum(value, *((int*)data));
 	else if (fundamental == G_TYPE_STRING)
-		g_value_set_string(value, *((char **) data));
+		g_value_set_string(value, *((char**)data));
 	else
 		g_warning("%s: unimplemented vips_set_value_from_pointer() type %s",
 			G_STRLOC,
@@ -1323,16 +1277,15 @@ vips_set_value_from_pointer(GValue *value, void *data)
  * Returns: (skip): 0 on success, -1 otherwise.
  */
 int
-vips_image_get(const VipsImage *image, const char *name, GValue *value_copy)
-{
+vips_image_get(const VipsImage* image, const char* name, GValue* value_copy) {
 	int i;
-	VipsMeta *meta;
+	VipsMeta* meta;
 
 	g_assert(name);
 	g_assert(value_copy);
 
 	for (i = 0; i < VIPS_NUMBER(vips_header_fields); i++) {
-		HeaderField *field = &vips_header_fields[i];
+		HeaderField* field = &vips_header_fields[i];
 
 		if (strcmp(field->name, name) == 0) {
 			GType gtype = g_type_from_name(field->type);
@@ -1345,7 +1298,7 @@ vips_image_get(const VipsImage *image, const char *name, GValue *value_copy)
 	}
 
 	for (i = 0; i < VIPS_NUMBER(vips_header_fields_old); i++) {
-		HeaderField *field = &vips_header_fields_old[i];
+		HeaderField* field = &vips_header_fields_old[i];
 
 		if (strcmp(field->name, name) == 0) {
 			GType gtype = g_type_from_name(field->type);
@@ -1384,22 +1337,21 @@ vips_image_get(const VipsImage *image, const char *name, GValue *value_copy)
  * field of that name.
  */
 GType
-vips_image_get_typeof(const VipsImage *image, const char *name)
-{
+vips_image_get_typeof(const VipsImage* image, const char* name) {
 	int i;
-	VipsMeta *meta;
+	VipsMeta* meta;
 
 	g_assert(name);
 
 	for (i = 0; i < VIPS_NUMBER(vips_header_fields); i++) {
-		HeaderField *field = &vips_header_fields[i];
+		HeaderField* field = &vips_header_fields[i];
 
 		if (strcmp(field->name, name) == 0)
 			return g_type_from_name(field->type);
 	}
 
 	for (i = 0; i < VIPS_NUMBER(vips_header_fields_old); i++) {
-		HeaderField *field = &vips_header_fields_old[i];
+		HeaderField* field = &vips_header_fields_old[i];
 
 		if (strcmp(field->name, name) == 0)
 			return g_type_from_name(field->type);
@@ -1427,8 +1379,7 @@ vips_image_get_typeof(const VipsImage *image, const char *name)
  * Returns: %TRUE if an item of metadata of that name was found and removed
  */
 gboolean
-vips_image_remove(VipsImage *image, const char *name)
-{
+vips_image_remove(VipsImage* image, const char* name) {
 	gboolean result;
 
 	result = FALSE;
@@ -1451,7 +1402,7 @@ vips_image_remove(VipsImage *image, const char *name)
 
 /* Deprecated header fields we hide from _map.
  */
-static const char *vips_image_header_deprecated[] = {
+static const char* vips_image_header_deprecated[] = {
 	"ipct-data",
 	"gif-delay",
 	"gif-loop",
@@ -1459,9 +1410,8 @@ static const char *vips_image_header_deprecated[] = {
 	"heif-bitdepth"
 };
 
-static void *
-vips_image_map_fn(VipsMeta *meta, VipsImageMapFn fn, void *a)
-{
+static void*
+vips_image_map_fn(VipsMeta* meta, VipsImageMapFn fn, void* a) {
 	int i;
 
 	/* Hide deprecated fields.
@@ -1489,17 +1439,16 @@ vips_image_map_fn(VipsMeta *meta, VipsImageMapFn fn, void *a)
  *
  * Returns: (transfer none): %NULL on success, the failing pointer otherwise.
  */
-void *
-vips_image_map(VipsImage *image, VipsImageMapFn fn, void *a)
-{
+void*
+vips_image_map(VipsImage* image, VipsImageMapFn fn, void* a) {
 	int i;
 	GValue value = G_VALUE_INIT;
-	void *result;
+	void* result;
 
 	for (i = 0; i < VIPS_NUMBER(vips_header_fields); i++) {
-		HeaderField *field = &vips_header_fields[i];
+		HeaderField* field = &vips_header_fields[i];
 
-		(void) vips_image_get(image, field->name, &value);
+		(void)vips_image_get(image, field->name, &value);
 		result = fn(image, field->name, &value, a);
 		g_value_unset(&value);
 
@@ -1509,26 +1458,24 @@ vips_image_map(VipsImage *image, VipsImageMapFn fn, void *a)
 
 	if (image->meta_traverse &&
 		(result = vips_slist_map2(image->meta_traverse,
-			 (VipsSListMap2Fn) vips_image_map_fn, fn, a)))
+			(VipsSListMap2Fn)vips_image_map_fn, fn, a)))
 		return result;
 
 	return NULL;
 }
 
-static void *
-count_fields(VipsImage *image, const char *field, GValue *value, void *a)
-{
-	int *n_fields = (int *) a;
+static void*
+count_fields(VipsImage* image, const char* field, GValue* value, void* a) {
+	int* n_fields = (int*)a;
 
 	*n_fields += 1;
 
 	return NULL;
 }
 
-static void *
-add_fields(VipsImage *image, const char *field, GValue *value, void *a)
-{
-	gchar ***p = (gchar ***) a;
+static void*
+add_fields(VipsImage* image, const char* field, GValue* value, void* a) {
+	gchar*** p = (gchar***)a;
 
 	**p = g_strdup(field);
 	*p += 1;
@@ -1549,18 +1496,17 @@ add_fields(VipsImage *image, const char *field, GValue *value, void *a)
  * Returns: (transfer full): metadata fields in image, as a %NULL-terminated
  * array.
  */
-gchar **
-vips_image_get_fields(VipsImage *image)
-{
+gchar**
+vips_image_get_fields(VipsImage* image) {
 	int n_fields;
-	gchar **fields;
-	gchar **p;
+	gchar** fields;
+	gchar** p;
 
 	n_fields = 0;
-	(void) vips_image_map(image, count_fields, &n_fields);
-	fields = g_new0(gchar *, n_fields + 1);
+	(void)vips_image_map(image, count_fields, &n_fields);
+	fields = g_new0(gchar*, n_fields + 1);
 	p = fields;
-	(void) vips_image_map(image, add_fields, &p);
+	(void)vips_image_map(image, add_fields, &p);
 
 	return fields;
 }
@@ -1578,9 +1524,8 @@ vips_image_get_fields(VipsImage *image)
  * See also: vips_image_get_double(), vips_image_set()
  */
 void
-vips_image_set_area(VipsImage *image, const char *name,
-	VipsCallbackFn free_fn, void *data)
-{
+vips_image_set_area(VipsImage* image, const char* name,
+	VipsCallbackFn free_fn, void* data) {
 	GValue value = G_VALUE_INIT;
 
 	vips_value_set_area(&value, free_fn, data);
@@ -1589,9 +1534,8 @@ vips_image_set_area(VipsImage *image, const char *name,
 }
 
 static int
-meta_get_value(const VipsImage *image,
-	const char *name, GType type, GValue *value_copy)
-{
+meta_get_value(const VipsImage* image,
+	const char* name, GType type, GValue* value_copy) {
 	GValue value = G_VALUE_INIT;
 
 	if (vips_image_get(image, name, &value))
@@ -1628,9 +1572,8 @@ meta_get_value(const VipsImage *image,
  * Returns: 0 on success, -1 otherwise.
  */
 int
-vips_image_get_area(const VipsImage *image,
-	const char *name, const void **data)
-{
+vips_image_get_area(const VipsImage* image,
+	const char* name, const void** data) {
 	GValue value_copy = G_VALUE_INIT;
 
 	if (!meta_get_value(image, name, VIPS_TYPE_AREA, &value_copy)) {
@@ -1656,9 +1599,8 @@ vips_image_get_area(const VipsImage *image,
  * See also: vips_image_get_blob(), vips_image_set().
  */
 void
-vips_image_set_blob(VipsImage *image, const char *name,
-	VipsCallbackFn free_fn, const void *data, size_t size)
-{
+vips_image_set_blob(VipsImage* image, const char* name,
+	VipsCallbackFn free_fn, const void* data, size_t size) {
 	GValue value = G_VALUE_INIT;
 
 	g_value_init(&value, VIPS_TYPE_BLOB);
@@ -1680,10 +1622,9 @@ vips_image_set_blob(VipsImage *image, const char *name,
  * See also: vips_image_get_blob(), vips_image_set().
  */
 void
-vips_image_set_blob_copy(VipsImage *image,
-	const char *name, const void *data, size_t length)
-{
-	void *data_copy;
+vips_image_set_blob_copy(VipsImage* image,
+	const char* name, const void* data, size_t length) {
+	void* data_copy;
 
 	/* Cap at 100mb for sanity.
 	 */
@@ -1699,10 +1640,10 @@ vips_image_set_blob_copy(VipsImage *image,
 	if (!(data_copy = vips_malloc(NULL, length + 1)))
 		return;
 	memcpy(data_copy, data, length);
-	((unsigned char *) data_copy)[length] = '\0';
+	((unsigned char*)data_copy)[length] = '\0';
 
 	vips_image_set_blob(image,
-		name, (VipsCallbackFn) vips_area_free_cb, data_copy, length);
+		name, (VipsCallbackFn)vips_area_free_cb, data_copy, length);
 }
 
 /**
@@ -1721,9 +1662,8 @@ vips_image_set_blob_copy(VipsImage *image,
  * Returns: 0 on success, -1 otherwise.
  */
 int
-vips_image_get_blob(const VipsImage *image, const char *name,
-	const void **data, size_t *length)
-{
+vips_image_get_blob(const VipsImage* image, const char* name,
+	const void** data, size_t* length) {
 	GValue value_copy = G_VALUE_INIT;
 
 	if (!meta_get_value(image, name, VIPS_TYPE_BLOB, &value_copy)) {
@@ -1750,8 +1690,7 @@ vips_image_get_blob(const VipsImage *image, const char *name,
  * Returns: 0 on success, -1 otherwise.
  */
 int
-vips_image_get_int(const VipsImage *image, const char *name, int *out)
-{
+vips_image_get_int(const VipsImage* image, const char* name, int* out) {
 	GValue value = G_VALUE_INIT;
 
 	if (meta_get_value(image, name, G_TYPE_INT, &value))
@@ -1775,8 +1714,7 @@ vips_image_get_int(const VipsImage *image, const char *name, int *out)
  * See also: vips_image_get_int(), vips_image_set()
  */
 void
-vips_image_set_int(VipsImage *image, const char *name, int i)
-{
+vips_image_set_int(VipsImage* image, const char* name, int i) {
 	GValue value = G_VALUE_INIT;
 
 	g_value_init(&value, G_TYPE_INT);
@@ -1800,8 +1738,7 @@ vips_image_set_int(VipsImage *image, const char *name, int i)
  * Returns: 0 on success, -1 otherwise.
  */
 int
-vips_image_get_double(const VipsImage *image, const char *name, double *out)
-{
+vips_image_get_double(const VipsImage* image, const char* name, double* out) {
 	GValue value = G_VALUE_INIT;
 
 	if (meta_get_value(image, name, G_TYPE_DOUBLE, &value))
@@ -1825,8 +1762,7 @@ vips_image_get_double(const VipsImage *image, const char *name, double *out)
  * See also: vips_image_get_double(), vips_image_set()
  */
 void
-vips_image_set_double(VipsImage *image, const char *name, double d)
-{
+vips_image_set_double(VipsImage* image, const char* name, double d) {
 	GValue value = G_VALUE_INIT;
 
 	g_value_init(&value, G_TYPE_DOUBLE);
@@ -1854,24 +1790,21 @@ vips_image_set_double(VipsImage *image, const char *name, double d)
  * Returns: 0 on success, -1 otherwise.
  */
 int
-vips_image_get_string(const VipsImage *image, const char *name,
-	const char **out)
-{
+vips_image_get_string(const VipsImage* image, const char* name,
+	const char** out) {
 	GValue value = G_VALUE_INIT;
 
 	if (vips_image_get(image, name, &value))
 		return -1;
 
 	if (G_VALUE_TYPE(&value) == VIPS_TYPE_REF_STRING) {
-		VipsArea *area;
+		VipsArea* area;
 
 		area = g_value_get_boxed(&value);
 		*out = area->data;
-	}
-	else if (G_VALUE_TYPE(&value) == G_TYPE_STRING) {
+	} else if (G_VALUE_TYPE(&value) == G_TYPE_STRING) {
 		*out = g_value_get_string(&value);
-	}
-	else {
+	} else {
 		vips_error("VipsImage",
 			_("field \"%s\" is of type %s, not VipsRefString"),
 			name,
@@ -1899,8 +1832,7 @@ vips_image_get_string(const VipsImage *image, const char *name,
  * See also: vips_image_get_double(), vips_image_set().
  */
 void
-vips_image_set_string(VipsImage *image, const char *name, const char *str)
-{
+vips_image_set_string(VipsImage* image, const char* name, const char* str) {
 	GValue value = G_VALUE_INIT;
 
 	g_value_init(&value, VIPS_TYPE_REF_STRING);
@@ -1927,9 +1859,8 @@ vips_image_set_string(VipsImage *image, const char *name, const char *str)
  * Returns: 0 on success, -1 otherwise.
  */
 int
-vips_image_get_as_string(const VipsImage *image,
-	const char *name, char **out)
-{
+vips_image_get_as_string(const VipsImage* image,
+	const char* name, char** out) {
 	GValue value = G_VALUE_INIT;
 	GType type;
 
@@ -1948,8 +1879,7 @@ vips_image_get_as_string(const VipsImage *image,
 			return -1;
 		*out = g_strdup(vips_value_get_save_string(&save_value));
 		g_value_unset(&save_value);
-	}
-	else
+	} else
 		*out = g_strdup_value_contents(&value);
 
 	g_value_unset(&value);
@@ -1965,9 +1895,8 @@ vips_image_get_as_string(const VipsImage *image,
  * Prints field @name to stdout as ASCII. Handy for debugging.
  */
 void
-vips_image_print_field(const VipsImage *image, const char *name)
-{
-	char *str;
+vips_image_print_field(const VipsImage* image, const char* name) {
+	char* str;
 
 	if (vips_image_get_as_string(image, name, &str)) {
 		printf("vips_image_print_field: unable to read field\n");
@@ -1997,9 +1926,8 @@ vips_image_print_field(const VipsImage *image, const char *name)
  * Returns: 0 on success, -1 otherwise.
  */
 int
-vips_image_get_image(const VipsImage *image,
-	const char *name, VipsImage **out)
-{
+vips_image_get_image(const VipsImage* image,
+	const char* name, VipsImage** out) {
 	GValue value = G_VALUE_INIT;
 
 	if (meta_get_value(image, name, VIPS_TYPE_IMAGE, &value))
@@ -2022,8 +1950,7 @@ vips_image_get_image(const VipsImage *image,
  * See also: vips_image_get_image(), vips_image_set().
  */
 void
-vips_image_set_image(VipsImage *image, const char *name, VipsImage *im)
-{
+vips_image_set_image(VipsImage* image, const char* name, VipsImage* im) {
 	GValue value = G_VALUE_INIT;
 
 	g_value_init(&value, VIPS_TYPE_IMAGE);
@@ -2053,9 +1980,8 @@ vips_image_set_image(VipsImage *image, const char *name, VipsImage *im)
  * Returns: 0 on success, -1 otherwise.
  */
 int
-vips_image_get_array_int(VipsImage *image, const char *name,
-	int **out, int *n)
-{
+vips_image_get_array_int(VipsImage* image, const char* name,
+	int** out, int* n) {
 	GValue value = G_VALUE_INIT;
 
 	if (meta_get_value(image, name, VIPS_TYPE_ARRAY_INT, &value))
@@ -2079,9 +2005,8 @@ vips_image_get_array_int(VipsImage *image, const char *name,
  * See also: vips_image_get_image(), vips_image_set().
  */
 void
-vips_image_set_array_int(VipsImage *image, const char *name,
-	const int *array, int n)
-{
+vips_image_set_array_int(VipsImage* image, const char* name,
+	const int* array, int n) {
 	GValue value = G_VALUE_INIT;
 
 	g_value_init(&value, VIPS_TYPE_ARRAY_INT);
@@ -2111,9 +2036,8 @@ vips_image_set_array_int(VipsImage *image, const char *name,
  * Returns: 0 on success, -1 otherwise.
  */
 int
-vips_image_get_array_double(VipsImage *image, const char *name,
-	double **out, int *n)
-{
+vips_image_get_array_double(VipsImage* image, const char* name,
+	double** out, int* n) {
 	GValue value = G_VALUE_INIT;
 
 	if (meta_get_value(image, name, VIPS_TYPE_ARRAY_DOUBLE, &value))
@@ -2137,9 +2061,8 @@ vips_image_get_array_double(VipsImage *image, const char *name,
  * See also: vips_image_get_image(), vips_image_set().
  */
 void
-vips_image_set_array_double(VipsImage *image, const char *name,
-	const double *array, int n)
-{
+vips_image_set_array_double(VipsImage* image, const char* name,
+	const double* array, int n) {
 	GValue value = G_VALUE_INIT;
 
 	g_value_init(&value, VIPS_TYPE_ARRAY_DOUBLE);
@@ -2178,15 +2101,14 @@ vips_image_set_array_double(VipsImage *image, const char *name,
  * Returns: 0 on success, -1 on error.
  */
 int
-vips_image_history_printf(VipsImage *image, const char *fmt, ...)
-{
+vips_image_history_printf(VipsImage* image, const char* fmt, ...) {
 	va_list args;
 	char str[VIPS_PATH_MAX];
 	VipsBuf buf = VIPS_BUF_STATIC(str);
 	time_t timebuf;
 
 	va_start(args, fmt);
-	(void) vips_buf_vappendf(&buf, fmt, args);
+	(void)vips_buf_vappendf(&buf, fmt, args);
 	va_end(args);
 	vips_buf_appends(&buf, " # ");
 
@@ -2198,7 +2120,7 @@ vips_image_history_printf(VipsImage *image, const char *fmt, ...)
 
 #ifdef DEBUG
 	printf("vips_image_history_printf: "
-		   "adding:\n\t%s\nto history on image %p\n",
+		"adding:\n\t%s\nto history on image %p\n",
 		vips_buf_all(&buf), image);
 #endif /*DEBUG*/
 
@@ -2224,9 +2146,8 @@ vips_image_history_printf(VipsImage *image, const char *fmt, ...)
  * Returns: 0 on success, -1 on error.
  */
 int
-vips_image_history_args(VipsImage *image,
-	const char *name, int argc, char *argv[])
-{
+vips_image_history_args(VipsImage* image,
+	const char* name, int argc, char* argv[]) {
 	int i;
 	char txt[1024];
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
@@ -2260,9 +2181,8 @@ vips_image_history_args(VipsImage *image,
  *
  * Returns: (transfer none): The history of @image as a C string. Do not free!
  */
-const char *
-vips_image_get_history(VipsImage *image)
-{
+const char*
+vips_image_get_history(VipsImage* image) {
 	if (!image->Hist)
 		image->Hist = vips__gslist_gvalue_get(image->history_list);
 
@@ -2272,8 +2192,7 @@ vips_image_get_history(VipsImage *image)
 /* Called during vips_init().
  */
 void
-vips__meta_init(void)
-{
+vips__meta_init(void) {
 	if (!vips__meta_lock)
 		vips__meta_lock = vips_g_mutex_new();
 }

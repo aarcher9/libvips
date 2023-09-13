@@ -22,36 +22,36 @@
  * 	- add vips_image_new_from_source() / vips_image_write_to_target()
  */
 
-/*
+ /*
 
-	This file is part of VIPS.
+	 This file is part of VIPS.
 
-	VIPS is free software; you can redistribute it and/or modify
-	it under the terms of the GNU Lesser General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	 VIPS is free software; you can redistribute it and/or modify
+	 it under the terms of the GNU Lesser General Public License as published by
+	 the Free Software Foundation; either version 2 of the License, or
+	 (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Lesser General Public License for more details.
+	 This program is distributed in the hope that it will be useful,
+	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU Lesser General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-	02110-1301  USA
+	 You should have received a copy of the GNU Lesser General Public License
+	 along with this program; if not, write to the Free Software
+	 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+	 02110-1301  USA
 
- */
+  */
 
-/*
+  /*
 
-	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
+	  These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+   */
 
-/*
-#define VIPS_DEBUG
- */
+   /*
+   #define VIPS_DEBUG
+	*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -70,302 +70,302 @@
 #include <vips/internal.h>
 #include <vips/debug.h>
 
-/**
- * SECTION: image
- * @short_description: the VIPS image class
- * @stability: Stable
- * @see_also: <link linkend="libvips-header">header</link>
- * <link linkend="VipsRegion">VipsRegion</link>
- * <link linkend="libvips-generate">generate</link>
- * <link linkend="VipsOperation">VipsOperation</link>
- * @include: vips/vips.h
- *
- * The image class and associated types and macros.
- *
- * Images can be created from formatted files on disc, from C-style arrays on
- * disc, from formatted areas of memory, or from C-style arrays in memory. See
- * vips_image_new_from_file() and friends.
- * Creating an image is fast. VIPS reads just enough of
- * the image to be able to get the various properties, such as width in
- * pixels. It delays reading any pixels until they are really needed.
- *
- * Once you have an image, you can get properties from it in the usual way.
- * You can use projection functions, like vips_image_get_width() or
- * g_object_get(), to get %GObject properties.
- *
- * VIPS images are three-dimensional arrays, the dimensions being width,
- * height and bands. Each dimension can be up to 2 ** 31 pixels (or band
- * elements). An image has a format, meaning the machine number type used
- * to represent each value. VIPS supports 10 formats, from 8-bit unsigned
- * integer up to 128-bit double complex, see vips_image_get_format().
- *
- * In VIPS, images are uninterpreted arrays, meaning that from the point of
- * view of most operations, they are just large collections of numbers.
- * There's no difference between an RGBA (RGB with alpha) image and a CMYK
- * image, for example, they are both just four-band images. It's up to the
- * user of the library to pass the right sort of image to each operation.
- *
- * To take an example, VIPS has vips_Lab2XYZ(), an operation to transform
- * an image from CIE LAB colour space to CIE XYZ space. It assumes the
- * first three bands represent pixels in LAB colour space and returns an
- * image where the first three bands are transformed to XYZ and any
- * remaining bands are just copied. Pass it a RGB image by mistake and
- * you'll just get nonsense.
- *
- * VIPS has a feature to help (a little) with this: it sets a
- * #VipsInterpretation hint for each image (see
- * vips_image_get_interpretation()); a hint which says how pixels should
- * be interpreted. For example, vips_Lab2XYZ() will set the
- * interpretation of the output image to #VIPS_INTERPRETATION_XYZ. A
- * few utility operations will also use interpretation as a guide. For
- * example, you can give vips_colourspace() an input image and a desired
- * colourspace and it will use the input's interpretation hint to apply
- * the best sequence of colourspace transforms to get to the desired space.
- *
- * Use things like vips_invert() to manipulate your images. When you are done,
- * you can write images to disc files (with vips_image_write_to_file()),
- * to formatted memory buffers (with vips_image_write_to_buffer()) and to
- * C-style memory arrays (with vips_image_write_to_memory().
- *
- * You can also write images to other images. Create, for example, a temporary
- * disc image with vips_image_new_temp_file(), then write your image to that
- * with vips_image_write(). You can create several other types of image and
- * write to them, see vips_image_new_memory(), for example.
- *
- * See <link linkend="VipsOperation">operation</link> for an introduction to
- * running operations on images, see <link
- * linkend="libvips-header">header</link> for getting and setting image
- * metadata. See <link linkend="VipsObject">object</link> for a discussion of
- * the lower levels.
- */
+	/**
+	 * SECTION: image
+	 * @short_description: the VIPS image class
+	 * @stability: Stable
+	 * @see_also: <link linkend="libvips-header">header</link>
+	 * <link linkend="VipsRegion">VipsRegion</link>
+	 * <link linkend="libvips-generate">generate</link>
+	 * <link linkend="VipsOperation">VipsOperation</link>
+	 * @include: vips/vips.h
+	 *
+	 * The image class and associated types and macros.
+	 *
+	 * Images can be created from formatted files on disc, from C-style arrays on
+	 * disc, from formatted areas of memory, or from C-style arrays in memory. See
+	 * vips_image_new_from_file() and friends.
+	 * Creating an image is fast. VIPS reads just enough of
+	 * the image to be able to get the various properties, such as width in
+	 * pixels. It delays reading any pixels until they are really needed.
+	 *
+	 * Once you have an image, you can get properties from it in the usual way.
+	 * You can use projection functions, like vips_image_get_width() or
+	 * g_object_get(), to get %GObject properties.
+	 *
+	 * VIPS images are three-dimensional arrays, the dimensions being width,
+	 * height and bands. Each dimension can be up to 2 ** 31 pixels (or band
+	 * elements). An image has a format, meaning the machine number type used
+	 * to represent each value. VIPS supports 10 formats, from 8-bit unsigned
+	 * integer up to 128-bit double complex, see vips_image_get_format().
+	 *
+	 * In VIPS, images are uninterpreted arrays, meaning that from the point of
+	 * view of most operations, they are just large collections of numbers.
+	 * There's no difference between an RGBA (RGB with alpha) image and a CMYK
+	 * image, for example, they are both just four-band images. It's up to the
+	 * user of the library to pass the right sort of image to each operation.
+	 *
+	 * To take an example, VIPS has vips_Lab2XYZ(), an operation to transform
+	 * an image from CIE LAB colour space to CIE XYZ space. It assumes the
+	 * first three bands represent pixels in LAB colour space and returns an
+	 * image where the first three bands are transformed to XYZ and any
+	 * remaining bands are just copied. Pass it a RGB image by mistake and
+	 * you'll just get nonsense.
+	 *
+	 * VIPS has a feature to help (a little) with this: it sets a
+	 * #VipsInterpretation hint for each image (see
+	 * vips_image_get_interpretation()); a hint which says how pixels should
+	 * be interpreted. For example, vips_Lab2XYZ() will set the
+	 * interpretation of the output image to #VIPS_INTERPRETATION_XYZ. A
+	 * few utility operations will also use interpretation as a guide. For
+	 * example, you can give vips_colourspace() an input image and a desired
+	 * colourspace and it will use the input's interpretation hint to apply
+	 * the best sequence of colourspace transforms to get to the desired space.
+	 *
+	 * Use things like vips_invert() to manipulate your images. When you are done,
+	 * you can write images to disc files (with vips_image_write_to_file()),
+	 * to formatted memory buffers (with vips_image_write_to_buffer()) and to
+	 * C-style memory arrays (with vips_image_write_to_memory().
+	 *
+	 * You can also write images to other images. Create, for example, a temporary
+	 * disc image with vips_image_new_temp_file(), then write your image to that
+	 * with vips_image_write(). You can create several other types of image and
+	 * write to them, see vips_image_new_memory(), for example.
+	 *
+	 * See <link linkend="VipsOperation">operation</link> for an introduction to
+	 * running operations on images, see <link
+	 * linkend="libvips-header">header</link> for getting and setting image
+	 * metadata. See <link linkend="VipsObject">object</link> for a discussion of
+	 * the lower levels.
+	 */
 
-/**
- * VIPS_MAGIC_INTEL:
- *
- * The first four bytes of a VIPS file in Intel byte ordering.
- */
+	 /**
+	  * VIPS_MAGIC_INTEL:
+	  *
+	  * The first four bytes of a VIPS file in Intel byte ordering.
+	  */
 
-/**
- * VIPS_MAGIC_SPARC:
- *
- * The first four bytes of a VIPS file in SPARC byte ordering.
- */
+	  /**
+	   * VIPS_MAGIC_SPARC:
+	   *
+	   * The first four bytes of a VIPS file in SPARC byte ordering.
+	   */
 
-/**
- * VipsAccess:
- * @VIPS_ACCESS_RANDOM: can read anywhere
- * @VIPS_ACCESS_SEQUENTIAL: top-to-bottom reading only, but with a small buffer
- *
- * The type of access an operation has to supply. See vips_tilecache()
- * and #VipsForeign.
- *
- * @VIPS_ACCESS_RANDOM means requests can come in any order.
- *
- * @VIPS_ACCESS_SEQUENTIAL means requests will be top-to-bottom, but with some
- * amount of buffering behind the read point for small non-local accesses.
- */
+	   /**
+		* VipsAccess:
+		* @VIPS_ACCESS_RANDOM: can read anywhere
+		* @VIPS_ACCESS_SEQUENTIAL: top-to-bottom reading only, but with a small buffer
+		*
+		* The type of access an operation has to supply. See vips_tilecache()
+		* and #VipsForeign.
+		*
+		* @VIPS_ACCESS_RANDOM means requests can come in any order.
+		*
+		* @VIPS_ACCESS_SEQUENTIAL means requests will be top-to-bottom, but with some
+		* amount of buffering behind the read point for small non-local accesses.
+		*/
 
-/**
- * VipsDemandStyle:
- * @VIPS_DEMAND_STYLE_SMALLTILE: demand in small (typically 128x128 pixel) tiles
- * @VIPS_DEMAND_STYLE_FATSTRIP: demand in fat (typically 16 pixel high) strips
- * @VIPS_DEMAND_STYLE_THINSTRIP: demand in thin (typically 1 pixel high) strips
- * @VIPS_DEMAND_STYLE_ANY: demand geometry does not matter
- *
- * See vips_image_pipelinev(). Operations can hint
- * the kind of demand geometry they prefer
- * to the VIPS image IO system.
- *
- * These demand styles are given below in order of increasing
- * specialisation.  When demanding output from a pipeline,
- * vips_image_generate()
- * will use the most general style requested by the operations
- * in the pipeline.
- *
- * #VIPS_DEMAND_STYLE_SMALLTILE --- This is the most general demand format.
- * Output is demanded in small (around 100x100 pel) sections. This style works
- * reasonably efficiently, even for bizzarre operations like 45 degree rotate.
- *
- * #VIPS_DEMAND_STYLE_FATSTRIP --- This operation would like to output strips
- * the width of the image and as high as possible. This option is suitable
- * for area operations which do not violently transform coordinates, such
- * as vips_conv().
- *
- * #VIPS_DEMAND_STYLE_THINSTRIP --- This operation would like to output strips
- * the width of the image and a few pels high. This option is suitable for
- * point-to-point operations, such as those in the arithmetic package.
- *
- * #VIPS_DEMAND_STYLE_ANY --- This image is not being demand-read from a disc
- * file (even indirectly) so any demand style is OK. It's used for things like
- * vips_black() where the pixels are calculated.
- *
- * See also: vips_image_pipelinev().
- */
+		/**
+		 * VipsDemandStyle:
+		 * @VIPS_DEMAND_STYLE_SMALLTILE: demand in small (typically 128x128 pixel) tiles
+		 * @VIPS_DEMAND_STYLE_FATSTRIP: demand in fat (typically 16 pixel high) strips
+		 * @VIPS_DEMAND_STYLE_THINSTRIP: demand in thin (typically 1 pixel high) strips
+		 * @VIPS_DEMAND_STYLE_ANY: demand geometry does not matter
+		 *
+		 * See vips_image_pipelinev(). Operations can hint
+		 * the kind of demand geometry they prefer
+		 * to the VIPS image IO system.
+		 *
+		 * These demand styles are given below in order of increasing
+		 * specialisation.  When demanding output from a pipeline,
+		 * vips_image_generate()
+		 * will use the most general style requested by the operations
+		 * in the pipeline.
+		 *
+		 * #VIPS_DEMAND_STYLE_SMALLTILE --- This is the most general demand format.
+		 * Output is demanded in small (around 100x100 pel) sections. This style works
+		 * reasonably efficiently, even for bizzarre operations like 45 degree rotate.
+		 *
+		 * #VIPS_DEMAND_STYLE_FATSTRIP --- This operation would like to output strips
+		 * the width of the image and as high as possible. This option is suitable
+		 * for area operations which do not violently transform coordinates, such
+		 * as vips_conv().
+		 *
+		 * #VIPS_DEMAND_STYLE_THINSTRIP --- This operation would like to output strips
+		 * the width of the image and a few pels high. This option is suitable for
+		 * point-to-point operations, such as those in the arithmetic package.
+		 *
+		 * #VIPS_DEMAND_STYLE_ANY --- This image is not being demand-read from a disc
+		 * file (even indirectly) so any demand style is OK. It's used for things like
+		 * vips_black() where the pixels are calculated.
+		 *
+		 * See also: vips_image_pipelinev().
+		 */
 
-/**
- * VipsInterpretation:
- * @VIPS_INTERPRETATION_MULTIBAND: generic many-band image
- * @VIPS_INTERPRETATION_B_W: some kind of single-band image
- * @VIPS_INTERPRETATION_HISTOGRAM: a 1D image, eg. histogram or lookup table
- * @VIPS_INTERPRETATION_FOURIER: image is in fourier space
- * @VIPS_INTERPRETATION_XYZ: the first three bands are CIE XYZ
- * @VIPS_INTERPRETATION_LAB: pixels are in CIE Lab space
- * @VIPS_INTERPRETATION_CMYK: the first four bands are in CMYK space
- * @VIPS_INTERPRETATION_LABQ: implies #VIPS_CODING_LABQ
- * @VIPS_INTERPRETATION_RGB: generic RGB space
- * @VIPS_INTERPRETATION_CMC: a uniform colourspace based on CMC(1:1)
- * @VIPS_INTERPRETATION_LCH: pixels are in CIE LCh space
- * @VIPS_INTERPRETATION_LABS: CIE LAB coded as three signed 16-bit values
- * @VIPS_INTERPRETATION_sRGB: pixels are sRGB
- * @VIPS_INTERPRETATION_HSV: pixels are HSV
- * @VIPS_INTERPRETATION_scRGB: pixels are scRGB
- * @VIPS_INTERPRETATION_YXY: pixels are CIE Yxy
- * @VIPS_INTERPRETATION_RGB16: generic 16-bit RGB
- * @VIPS_INTERPRETATION_GREY16: generic 16-bit mono
- * @VIPS_INTERPRETATION_MATRIX: a matrix
- *
- * How the values in an image should be interpreted. For example, a
- * three-band float image of type #VIPS_INTERPRETATION_LAB should have its
- * pixels interpreted as coordinates in CIE Lab space.
- *
- * RGB and sRGB are treated in the same way. Use the colourspace functions if
- * you want some other behaviour.
- *
- * The gaps in numbering are historical and must be maintained. Allocate
- * new numbers from the end.
- */
+		 /**
+		  * VipsInterpretation:
+		  * @VIPS_INTERPRETATION_MULTIBAND: generic many-band image
+		  * @VIPS_INTERPRETATION_B_W: some kind of single-band image
+		  * @VIPS_INTERPRETATION_HISTOGRAM: a 1D image, eg. histogram or lookup table
+		  * @VIPS_INTERPRETATION_FOURIER: image is in fourier space
+		  * @VIPS_INTERPRETATION_XYZ: the first three bands are CIE XYZ
+		  * @VIPS_INTERPRETATION_LAB: pixels are in CIE Lab space
+		  * @VIPS_INTERPRETATION_CMYK: the first four bands are in CMYK space
+		  * @VIPS_INTERPRETATION_LABQ: implies #VIPS_CODING_LABQ
+		  * @VIPS_INTERPRETATION_RGB: generic RGB space
+		  * @VIPS_INTERPRETATION_CMC: a uniform colourspace based on CMC(1:1)
+		  * @VIPS_INTERPRETATION_LCH: pixels are in CIE LCh space
+		  * @VIPS_INTERPRETATION_LABS: CIE LAB coded as three signed 16-bit values
+		  * @VIPS_INTERPRETATION_sRGB: pixels are sRGB
+		  * @VIPS_INTERPRETATION_HSV: pixels are HSV
+		  * @VIPS_INTERPRETATION_scRGB: pixels are scRGB
+		  * @VIPS_INTERPRETATION_YXY: pixels are CIE Yxy
+		  * @VIPS_INTERPRETATION_RGB16: generic 16-bit RGB
+		  * @VIPS_INTERPRETATION_GREY16: generic 16-bit mono
+		  * @VIPS_INTERPRETATION_MATRIX: a matrix
+		  *
+		  * How the values in an image should be interpreted. For example, a
+		  * three-band float image of type #VIPS_INTERPRETATION_LAB should have its
+		  * pixels interpreted as coordinates in CIE Lab space.
+		  *
+		  * RGB and sRGB are treated in the same way. Use the colourspace functions if
+		  * you want some other behaviour.
+		  *
+		  * The gaps in numbering are historical and must be maintained. Allocate
+		  * new numbers from the end.
+		  */
 
-/**
- * VipsBandFormat:
- * @VIPS_FORMAT_NOTSET: invalid setting
- * @VIPS_FORMAT_UCHAR: unsigned char format
- * @VIPS_FORMAT_CHAR: char format
- * @VIPS_FORMAT_USHORT: unsigned short format
- * @VIPS_FORMAT_SHORT: short format
- * @VIPS_FORMAT_UINT: unsigned int format
- * @VIPS_FORMAT_INT: int format
- * @VIPS_FORMAT_FLOAT: float format
- * @VIPS_FORMAT_COMPLEX: complex (two floats) format
- * @VIPS_FORMAT_DOUBLE: double float format
- * @VIPS_FORMAT_DPCOMPLEX: double complex (two double) format
- *
- * The format used for each band element.
- *
- * Each corresponds to a native C type for the current machine. For example,
- * #VIPS_FORMAT_USHORT is <type>unsigned short</type>.
- */
+		  /**
+		   * VipsBandFormat:
+		   * @VIPS_FORMAT_NOTSET: invalid setting
+		   * @VIPS_FORMAT_UCHAR: unsigned char format
+		   * @VIPS_FORMAT_CHAR: char format
+		   * @VIPS_FORMAT_USHORT: unsigned short format
+		   * @VIPS_FORMAT_SHORT: short format
+		   * @VIPS_FORMAT_UINT: unsigned int format
+		   * @VIPS_FORMAT_INT: int format
+		   * @VIPS_FORMAT_FLOAT: float format
+		   * @VIPS_FORMAT_COMPLEX: complex (two floats) format
+		   * @VIPS_FORMAT_DOUBLE: double float format
+		   * @VIPS_FORMAT_DPCOMPLEX: double complex (two double) format
+		   *
+		   * The format used for each band element.
+		   *
+		   * Each corresponds to a native C type for the current machine. For example,
+		   * #VIPS_FORMAT_USHORT is <type>unsigned short</type>.
+		   */
 
-/**
- * VipsCoding:
- * @VIPS_CODING_NONE: pixels are not coded
- * @VIPS_CODING_LABQ: pixels encode 3 float CIELAB values as 4 uchar
- * @VIPS_CODING_RAD: pixels encode 3 float RGB as 4 uchar (Radiance coding)
- *
- * How pixels are coded.
- *
- * Normally, pixels are uncoded and can be manipulated as you would expect.
- * However some file formats code pixels for compression, and sometimes it's
- * useful to be able to manipulate images in the coded format.
- *
- * The gaps in the numbering are historical and must be maintained. Allocate
- * new numbers from the end.
- */
+		   /**
+			* VipsCoding:
+			* @VIPS_CODING_NONE: pixels are not coded
+			* @VIPS_CODING_LABQ: pixels encode 3 float CIELAB values as 4 uchar
+			* @VIPS_CODING_RAD: pixels encode 3 float RGB as 4 uchar (Radiance coding)
+			*
+			* How pixels are coded.
+			*
+			* Normally, pixels are uncoded and can be manipulated as you would expect.
+			* However some file formats code pixels for compression, and sometimes it's
+			* useful to be able to manipulate images in the coded format.
+			*
+			* The gaps in the numbering are historical and must be maintained. Allocate
+			* new numbers from the end.
+			*/
 
-/**
- * VipsProgress:
- * @run: Time we have been running
- * @eta: Estimated seconds of computation left
- * @tpels: Number of pels we expect to calculate
- * @npels: Number of pels calculated so far
- * @percent: Percent complete
- * @start: Start time
- *
- * A structure available to eval callbacks giving information on evaluation
- * progress. See #VipsImage::eval.
- */
+			/**
+			 * VipsProgress:
+			 * @run: Time we have been running
+			 * @eta: Estimated seconds of computation left
+			 * @tpels: Number of pels we expect to calculate
+			 * @npels: Number of pels calculated so far
+			 * @percent: Percent complete
+			 * @start: Start time
+			 *
+			 * A structure available to eval callbacks giving information on evaluation
+			 * progress. See #VipsImage::eval.
+			 */
 
-/**
- * VipsImage:
- *
- * An image. These can represent an image on disc, a memory buffer, an image
- * in the process of being written to disc or a partially evaluated image
- * in memory.
- */
+			 /**
+			  * VipsImage:
+			  *
+			  * An image. These can represent an image on disc, a memory buffer, an image
+			  * in the process of being written to disc or a partially evaluated image
+			  * in memory.
+			  */
 
-/**
- * VIPS_IMAGE_SIZEOF_ELEMENT:
- * @I: a #VipsImage
- *
- * Returns: sizeof() a band element.
- */
+			  /**
+			   * VIPS_IMAGE_SIZEOF_ELEMENT:
+			   * @I: a #VipsImage
+			   *
+			   * Returns: sizeof() a band element.
+			   */
 
-/**
- * VIPS_IMAGE_SIZEOF_PEL:
- * @I: a #VipsImage
- *
- * Returns: sizeof() a pixel.
- */
+			   /**
+				* VIPS_IMAGE_SIZEOF_PEL:
+				* @I: a #VipsImage
+				*
+				* Returns: sizeof() a pixel.
+				*/
 
-/**
- * VIPS_IMAGE_SIZEOF_LINE:
- * @I: a #VipsImage
- *
- * Returns: sizeof() a scanline of pixels.
- */
+				/**
+				 * VIPS_IMAGE_SIZEOF_LINE:
+				 * @I: a #VipsImage
+				 *
+				 * Returns: sizeof() a scanline of pixels.
+				 */
 
-/**
- * VIPS_IMAGE_N_ELEMENTS:
- * @I: a #VipsImage
- *
- * Returns: The number of band elements in a scanline.
- */
+				 /**
+				  * VIPS_IMAGE_N_ELEMENTS:
+				  * @I: a #VipsImage
+				  *
+				  * Returns: The number of band elements in a scanline.
+				  */
 
-/**
- * VIPS_IMAGE_N_PELS:
- * @I: a #VipsImage
- *
- * Returns: The number of pels in an image. A 64-bit unsigned int.
- */
+				  /**
+				   * VIPS_IMAGE_N_PELS:
+				   * @I: a #VipsImage
+				   *
+				   * Returns: The number of pels in an image. A 64-bit unsigned int.
+				   */
 
-/**
- * VIPS_IMAGE_ADDR:
- * @I: a #VipsImage
- * @X: x coordinate
- * @Y: y coordinate
- *
- * This macro returns a pointer to a pixel in an image, cast to a #VipsPel *.
- * It only works for
- * images which are fully available in memory, so memory buffers and small
- * mapped images only.
- *
- * If VIPS_DEBUG is defined, you get a version that checks bounds for you.
- *
- * See also: vips_image_wio_input(), vips_image_inplace(), VIPS_REGION_ADDR().
- *
- * Returns: The address of pixel (@X,@Y) in @I.
- */
+				   /**
+					* VIPS_IMAGE_ADDR:
+					* @I: a #VipsImage
+					* @X: x coordinate
+					* @Y: y coordinate
+					*
+					* This macro returns a pointer to a pixel in an image, cast to a #VipsPel *.
+					* It only works for
+					* images which are fully available in memory, so memory buffers and small
+					* mapped images only.
+					*
+					* If VIPS_DEBUG is defined, you get a version that checks bounds for you.
+					*
+					* See also: vips_image_wio_input(), vips_image_inplace(), VIPS_REGION_ADDR().
+					*
+					* Returns: The address of pixel (@X,@Y) in @I.
+					*/
 
-/**
- * VIPS_MATRIX:
- * @I: a #VipsImage
- * @X: x coordinate
- * @Y: y coordinate
- *
- * This macro returns a pointer to a pixel in an image, cast to a double*. The
- * image must have a single band, be #VIPS_FORMAT_DOUBLE and be
- * fully available in memory, so memory buffers and small
- * mapped images only.
- *
- * If VIPS_DEBUG is defined, you get a version that checks bounds and image
- * type for you.
- *
- * See also: vips_image_wio_input(), vips_image_inplace(), vips_check_matrix().
- *
- * Returns: The address of pixel (@X,@Y) in @I.
- */
+					/**
+					 * VIPS_MATRIX:
+					 * @I: a #VipsImage
+					 * @X: x coordinate
+					 * @Y: y coordinate
+					 *
+					 * This macro returns a pointer to a pixel in an image, cast to a double*. The
+					 * image must have a single band, be #VIPS_FORMAT_DOUBLE and be
+					 * fully available in memory, so memory buffers and small
+					 * mapped images only.
+					 *
+					 * If VIPS_DEBUG is defined, you get a version that checks bounds and image
+					 * type for you.
+					 *
+					 * See also: vips_image_wio_input(), vips_image_inplace(), vips_check_matrix().
+					 *
+					 * Returns: The address of pixel (@X,@Y) in @I.
+					 */
 
-/* Our signals.
- */
+					 /* Our signals.
+					  */
 enum {
 	SIG_PREEVAL,
 	SIG_EVAL,
@@ -383,11 +383,11 @@ int vips__progress = 0;
 /* A string giving the image size (in bytes of uncompressed image) above which
  * we decompress to disc on open.  Can be eg. "12m" for 12 megabytes.
  */
-char *vips__disc_threshold = NULL;
+char* vips__disc_threshold = NULL;
 
 /* Minimise needs a lock.
  */
-static GMutex *vips__minimise_lock = NULL;
+static GMutex* vips__minimise_lock = NULL;
 
 static guint vips_image_signals[SIG_LAST] = { 0 };
 
@@ -402,14 +402,12 @@ G_DEFINE_TYPE(VipsImage, vips_image, VIPS_TYPE_OBJECT);
  * setting the environment variable VIPS_PROGRESS.
  */
 void
-vips_progress_set(gboolean progress)
-{
+vips_progress_set(gboolean progress) {
 	vips__progress = progress;
 }
 
 static void
-vips_image_delete(VipsImage *image)
-{
+vips_image_delete(VipsImage* image) {
 	if (image->delete_on_close) {
 		g_assert(image->delete_on_close_filename);
 
@@ -422,9 +420,8 @@ vips_image_delete(VipsImage *image)
 }
 
 static void
-vips_image_finalize(GObject *gobject)
-{
-	VipsImage *image = VIPS_IMAGE(gobject);
+vips_image_finalize(GObject* gobject) {
+	VipsImage* image = VIPS_IMAGE(gobject);
 
 	VIPS_DEBUG_MSG("vips_image_finalize: %p\n", gobject);
 
@@ -480,15 +477,14 @@ vips_image_finalize(GObject *gobject)
 }
 
 static void
-vips_image_dispose(GObject *gobject)
-{
-	VipsImage *image = VIPS_IMAGE(gobject);
+vips_image_dispose(GObject* gobject) {
+	VipsImage* image = VIPS_IMAGE(gobject);
 
 	VIPS_DEBUG_MSG("vips_image_dispose: %p\n", gobject);
 
 #ifdef DEBUG_LEAK
 	{
-		VipsImagePixels *pixels = g_object_get_qdata(G_OBJECT(image),
+		VipsImagePixels* pixels = g_object_get_qdata(G_OBJECT(image),
 			vips__image_pixels_quark);
 
 		if (pixels &&
@@ -511,8 +507,8 @@ vips_image_dispose(GObject *gobject)
 	 * read.
 	 */
 
-	/* Any file mapping?
-	 */
+	 /* Any file mapping?
+	  */
 	if (image->baseaddr) {
 		/* MMAP file.
 		 */
@@ -542,10 +538,9 @@ vips_image_dispose(GObject *gobject)
 	G_OBJECT_CLASS(vips_image_parent_class)->dispose(gobject);
 }
 
-static VipsObject *
-vips_image_new_from_file_object(const char *string)
-{
-	VipsImage *image;
+static VipsObject*
+vips_image_new_from_file_object(const char* string) {
+	VipsImage* image;
 
 	vips_check_init();
 
@@ -562,23 +557,20 @@ vips_image_new_from_file_object(const char *string)
 }
 
 static void
-vips_image_to_string(VipsObject *object, VipsBuf *buf)
-{
-	VipsImage *image = VIPS_IMAGE(object);
+vips_image_to_string(VipsObject* object, VipsBuf* buf) {
+	VipsImage* image = VIPS_IMAGE(object);
 
 	vips_buf_appends(buf, image->filename);
 }
 
 static int
-vips_image_write_object(VipsObject *object, const char *string)
-{
+vips_image_write_object(VipsObject* object, const char* string) {
 	return vips_image_write_to_file(VIPS_IMAGE(object), string, NULL);
 }
 
-static void *
-print_field_fn(VipsImage *image, const char *field, GValue *value, void *a)
-{
-	VipsBuf *buf = (VipsBuf *) a;
+static void*
+print_field_fn(VipsImage* image, const char* field, GValue* value, void* a) {
+	VipsBuf* buf = (VipsBuf*)a;
 
 	vips_buf_appendf(buf, "%s: ", field);
 	vips_buf_appendgv(buf, value);
@@ -588,9 +580,8 @@ print_field_fn(VipsImage *image, const char *field, GValue *value, void *a)
 }
 
 static void
-vips_image_dump(VipsObject *object, VipsBuf *buf)
-{
-	VipsImage *image = VIPS_IMAGE(object);
+vips_image_dump(VipsObject* object, VipsBuf* buf) {
+	VipsImage* image = VIPS_IMAGE(object);
 
 	vips_buf_appendf(buf,
 		g_dngettext(GETTEXT_PACKAGE,
@@ -612,16 +603,15 @@ vips_image_dump(VipsObject *object, VipsBuf *buf)
 
 	vips_buf_appendf(buf, "\n");
 
-	(void) vips_image_map(image, print_field_fn, (void *) buf);
+	(void)vips_image_map(image, print_field_fn, (void*)buf);
 
 	vips_buf_appendf(buf, "Hist: %s", vips_image_get_history(image));
 }
 
 static void
-vips_image_summary(VipsObject *object, VipsBuf *buf)
-{
-	VipsImage *image = VIPS_IMAGE(object);
-	const char *p;
+vips_image_summary(VipsObject* object, VipsBuf* buf) {
+	VipsImage* image = VIPS_IMAGE(object);
+	const char* p;
 
 	vips_buf_appendf(buf, "%dx%d",
 		vips_image_get_width(image), vips_image_get_height(image));
@@ -636,8 +626,7 @@ vips_image_summary(VipsObject *object, VipsBuf *buf)
 			vips_image_get_bands(image),
 			vips_enum_nick(VIPS_TYPE_INTERPRETATION,
 				vips_image_get_interpretation(image)));
-	}
-	else {
+	} else {
 		vips_buf_appendf(buf, ", %s",
 			vips_enum_nick(VIPS_TYPE_CODING,
 				vips_image_get_coding(image)));
@@ -650,9 +639,8 @@ vips_image_summary(VipsObject *object, VipsBuf *buf)
 	VIPS_OBJECT_CLASS(vips_image_parent_class)->summary(object, buf);
 }
 
-static void *
-vips_image_sanity_upstream(VipsImage *up, VipsImage *down, void *b)
-{
+static void*
+vips_image_sanity_upstream(VipsImage* up, VipsImage* down, void* b) {
 	if (!g_slist_find(up->downstream, down) ||
 		!g_slist_find(down->upstream, up))
 		return up;
@@ -660,16 +648,14 @@ vips_image_sanity_upstream(VipsImage *up, VipsImage *down, void *b)
 	return NULL;
 }
 
-static void *
-vips_image_sanity_downstream(VipsImage *down, VipsImage *up, void *b)
-{
+static void*
+vips_image_sanity_downstream(VipsImage* down, VipsImage* up, void* b) {
 	return vips_image_sanity_upstream(up, down, b);
 }
 
 static void
-vips_image_sanity(VipsObject *object, VipsBuf *buf)
-{
-	VipsImage *image = VIPS_IMAGE(object);
+vips_image_sanity(VipsObject* object, VipsBuf* buf) {
+	VipsImage* image = VIPS_IMAGE(object);
 
 	/* All 0 means im has been inited but never used.
 	 */
@@ -700,10 +686,10 @@ vips_image_sanity(VipsObject *object, VipsBuf *buf)
 	g_mutex_lock(vips__global_lock);
 
 	if (vips_slist_map2(image->upstream,
-			(VipsSListMap2Fn) vips_image_sanity_upstream, image, NULL))
+		(VipsSListMap2Fn)vips_image_sanity_upstream, image, NULL))
 		vips_buf_appends(buf, "upstream broken\n");
 	if (vips_slist_map2(image->downstream,
-			(VipsSListMap2Fn) vips_image_sanity_downstream, image, NULL))
+		(VipsSListMap2Fn)vips_image_sanity_downstream, image, NULL))
 		vips_buf_appends(buf, "downstream broken\n");
 
 	g_mutex_unlock(vips__global_lock);
@@ -712,11 +698,10 @@ vips_image_sanity(VipsObject *object, VipsBuf *buf)
 }
 
 static void
-vips_image_rewind(VipsObject *object)
-{
-	VipsImage *image = VIPS_IMAGE(object);
-	char *filename;
-	char *mode;
+vips_image_rewind(VipsObject* object) {
+	VipsImage* image = VIPS_IMAGE(object);
+	char* filename;
+	char* mode;
 
 	/* This triggers a dispose. Copy filename/mode across the dispose.
 	 */
@@ -735,11 +720,10 @@ vips_image_rewind(VipsObject *object)
 /* Delayed save.
  */
 
-/* From "written" callback: save to image->filename using VipsForeign.
- */
+ /* From "written" callback: save to image->filename using VipsForeign.
+  */
 static void
-vips_image_save_cb(VipsImage *image, int *result, void *data)
-{
+vips_image_save_cb(VipsImage* image, int* result, void* data) {
 	if (vips_foreign_save(image, image->filename, NULL))
 		*result = -1;
 }
@@ -748,8 +732,7 @@ vips_image_save_cb(VipsImage *image, int *result, void *data)
  */
 
 static void
-vips_image_preeval_cb(VipsImage *image, VipsProgress *progress, int *last)
-{
+vips_image_preeval_cb(VipsImage* image, VipsProgress* progress, int* last) {
 	int tile_width;
 	int tile_height;
 	int n_lines;
@@ -759,7 +742,7 @@ vips_image_preeval_cb(VipsImage *image, VipsProgress *progress, int *last)
 	vips_get_tile_size(image,
 		&tile_width, &tile_height, &n_lines);
 	printf(_("%s %s: %d x %d pixels, %d threads, %d x %d tiles, "
-			 "%d lines in buffer"),
+		"%d lines in buffer"),
 		vips_get_prgname(), image->filename,
 		image->Xsize, image->Ysize,
 		vips_concurrency_get(),
@@ -768,8 +751,7 @@ vips_image_preeval_cb(VipsImage *image, VipsProgress *progress, int *last)
 }
 
 static void
-vips_image_eval_cb(VipsImage *image, VipsProgress *progress, int *last)
-{
+vips_image_eval_cb(VipsImage* image, VipsProgress* progress, int* last) {
 	if (progress->percent != *last) {
 		printf(_("%s %s: %d%% complete"),
 			vips_get_prgname(), image->filename,
@@ -786,8 +768,7 @@ vips_image_eval_cb(VipsImage *image, VipsProgress *progress, int *last)
 }
 
 static void
-vips_image_posteval_cb(VipsImage *image, VipsProgress *progress, void *data)
-{
+vips_image_posteval_cb(VipsImage* image, VipsProgress* progress, void* data) {
 	/* Spaces at end help to erase the %complete message we overwrite.
 	 */
 	printf(_("%s %s: done in %.3gs          \n"),
@@ -798,18 +779,14 @@ vips_image_posteval_cb(VipsImage *image, VipsProgress *progress, void *data)
 /* Attach progress feedback, if required.
  */
 static void
-vips_image_add_progress(VipsImage *image)
-{
+vips_image_add_progress(VipsImage* image) {
 	if (vips__progress ||
 		g_getenv("VIPS_PROGRESS")
-#if ENABLE_DEPRECATED
-		|| g_getenv("IM_PROGRESS")
-#endif
-	) {
+		) {
 
 		/* Keep the %complete we displayed last time here.
 		 */
-		int *last = VIPS_NEW(image, int);
+		int* last = VIPS_NEW(image, int);
 
 		g_signal_connect(image, "preeval",
 			G_CALLBACK(vips_image_preeval_cb), last);
@@ -828,11 +805,10 @@ vips_image_add_progress(VipsImage *image)
  */
 
 static int
-vips_image_build(VipsObject *object)
-{
-	VipsImage *image = VIPS_IMAGE(object);
-	const char *filename = image->filename;
-	const char *mode = image->mode;
+vips_image_build(VipsObject* object) {
+	VipsImage* image = VIPS_IMAGE(object);
+	const char* filename = image->filename;
+	const char* mode = image->mode;
 
 	guint32 magic;
 	guint64 sizeof_image;
@@ -863,16 +839,15 @@ vips_image_build(VipsObject *object)
 				 */
 				if (vips_image_open_input(image))
 					return -1;
-			}
-			else {
-				VipsImage *t;
-				VipsImage *t2;
+			} else {
+				VipsImage* t;
+				VipsImage* t2;
 
 				/* Open the image in t, then byteswap to this
 				 * image.
 				 */
 				if (!(t = vips_image_new_mode(filename,
-						  "v")))
+					"v")))
 					return -1;
 
 				if (vips_byteswap(t, &t2, NULL)) {
@@ -888,17 +863,15 @@ vips_image_build(VipsObject *object)
 				}
 				g_object_unref(t2);
 			}
-		}
-		else {
-			VipsImage *t;
+		} else {
+			VipsImage* t;
 
 			if (mode[1] == 's') {
 				if (vips_foreign_load(filename, &t,
-						"access", VIPS_ACCESS_SEQUENTIAL,
-						NULL))
+					"access", VIPS_ACCESS_SEQUENTIAL,
+					NULL))
 					return -1;
-			}
-			else {
+			} else {
 				if (vips_foreign_load(filename, &t, NULL))
 					return -1;
 			}
@@ -914,7 +887,7 @@ vips_image_build(VipsObject *object)
 		break;
 
 	case 'w': {
-		const char *file_op;
+		const char* file_op;
 
 		/* Make sure the vips saver is there ... strange things will
 		 * happen if this type is renamed or removed.
@@ -1009,17 +982,15 @@ vips_image_build(VipsObject *object)
 	return 0;
 }
 
-static void *
-vips_image_real_invalidate_cb(VipsRegion *reg, void *a, void *b)
-{
+static void*
+vips_image_real_invalidate_cb(VipsRegion* reg, void* a, void* b) {
 	vips_region_invalidate(reg);
 
 	return NULL;
 }
 
 static void
-vips_image_real_invalidate(VipsImage *image, void *data)
-{
+vips_image_real_invalidate(VipsImage* image, void* data) {
 	VIPS_DEBUG_MSG("vips_image_real_invalidate: %p\n", image);
 
 	VIPS_GATE_START("vips_image_real_invalidate: wait");
@@ -1028,21 +999,19 @@ vips_image_real_invalidate(VipsImage *image, void *data)
 
 	VIPS_GATE_STOP("vips_image_real_invalidate: wait");
 
-	(void) vips_slist_map2(image->regions,
-		(VipsSListMap2Fn) vips_image_real_invalidate_cb, NULL, NULL);
+	(void)vips_slist_map2(image->regions,
+		(VipsSListMap2Fn)vips_image_real_invalidate_cb, NULL, NULL);
 
 	g_mutex_unlock(image->sslock);
 }
 
 static void
-vips_image_real_minimise(VipsImage *image, void *data)
-{
+vips_image_real_minimise(VipsImage* image, void* data) {
 	VIPS_DEBUG_MSG("vips_image_real_minimise: %p\n", image);
 }
 
 static void
-vips_image_real_written(VipsImage *image, int *result, void *data)
-{
+vips_image_real_written(VipsImage* image, int* result, void* data) {
 	VIPS_DEBUG_MSG("vips_image_real_written: %p\n", image);
 
 	/* For vips image write, append the xml after the data.
@@ -1053,10 +1022,9 @@ vips_image_real_written(VipsImage *image, int *result, void *data)
 }
 
 static void
-vips_image_class_init(VipsImageClass *class)
-{
-	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	VipsObjectClass *vobject_class = VIPS_OBJECT_CLASS(class);
+vips_image_class_init(VipsImageClass* class) {
+	GObjectClass* gobject_class = G_OBJECT_CLASS(class);
+	VipsObjectClass* vobject_class = VIPS_OBJECT_CLASS(class);
 
 	VIPS_DEBUG_MSG("vips_image_class_init:\n");
 
@@ -1086,16 +1054,16 @@ vips_image_class_init(VipsImageClass *class)
 	/* Create properties.
 	 */
 
-	/* It'd be good to have these as set once at construct time, but we
-	 * can't :-(
-	 *
-	 * For example, a "p" image might be made with vips_image_new() and
-	 * constructed, then passed to vips_copy() of whatever to be written to.
-	 * That operation will then need to set width/height etc.
-	 *
-	 * We can't set_once either, since vips_copy() etc. need to update
-	 * xoffset and friends on the way through.
-	 */
+	 /* It'd be good to have these as set once at construct time, but we
+	  * can't :-(
+	  *
+	  * For example, a "p" image might be made with vips_image_new() and
+	  * constructed, then passed to vips_copy() of whatever to be written to.
+	  * That operation will then need to set width/height etc.
+	  *
+	  * We can't set_once either, since vips_copy() etc. need to update
+	  * xoffset and friends on the way through.
+	  */
 
 	VIPS_ARG_INT(class, "width", 2,
 		_("Width"),
@@ -1211,17 +1179,17 @@ vips_image_class_init(VipsImageClass *class)
 	/* Create signals.
 	 */
 
-	/**
-	 * VipsImage::preeval:
-	 * @image: the image to be calculated
-	 * @progress: (type VipsProgress): #VipsProgress for this image
-	 *
-	 * The ::preeval signal is emitted once before computation of @image
-	 * starts. It's a good place to set up evaluation feedback.
-	 *
-	 * Use vips_image_set_progress() to turn on progress reporting for an
-	 * image.
-	 */
+	 /**
+	  * VipsImage::preeval:
+	  * @image: the image to be calculated
+	  * @progress: (type VipsProgress): #VipsProgress for this image
+	  *
+	  * The ::preeval signal is emitted once before computation of @image
+	  * starts. It's a good place to set up evaluation feedback.
+	  *
+	  * Use vips_image_set_progress() to turn on progress reporting for an
+	  * image.
+	  */
 	vips_image_signals[SIG_PREEVAL] = g_signal_new("preeval",
 		G_TYPE_FROM_CLASS(class),
 		G_SIGNAL_RUN_LAST,
@@ -1330,8 +1298,7 @@ vips_image_class_init(VipsImageClass *class)
 }
 
 static void
-vips_image_init(VipsImage *image)
-{
+vips_image_init(VipsImage* image) {
 	VIPS_DEBUG_MSG("vips_image_init: %p\n", image);
 
 	/* Default to native order.
@@ -1356,13 +1323,12 @@ vips_image_init(VipsImage *image)
 
 #ifdef DEBUG_LEAK
 	g_object_set_qdata_full(G_OBJECT(image), vips__image_pixels_quark,
-		g_new0(VipsImagePixels, 1), (GDestroyNotify) g_free);
+		g_new0(VipsImagePixels, 1), (GDestroyNotify)g_free);
 #endif /*DEBUG_LEAK*/
 }
 
 int
-vips_image_written(VipsImage *image)
-{
+vips_image_written(VipsImage* image) {
 	int result;
 
 	VIPS_DEBUG_MSG("vips_image_written: %p\n", image);
@@ -1374,16 +1340,14 @@ vips_image_written(VipsImage *image)
 }
 
 static void
-vips_image_invalidate(VipsImage *image)
-{
+vips_image_invalidate(VipsImage* image) {
 	VIPS_DEBUG_MSG("vips_image_invalidate: %p\n", image);
 
 	g_signal_emit(image, vips_image_signals[SIG_INVALIDATE], 0);
 }
 
-static void *
-vips_image_invalidate_all_cb(VipsImage *image, void *a, void *b)
-{
+static void*
+vips_image_invalidate_all_cb(VipsImage* image, void* a, void* b) {
 	vips_image_invalidate(image);
 
 	return NULL;
@@ -1405,25 +1369,22 @@ vips_image_invalidate_all_cb(VipsImage *image, void *a, void *b)
  * See also: vips_region_invalidate().
  */
 void
-vips_image_invalidate_all(VipsImage *image)
-{
+vips_image_invalidate_all(VipsImage* image) {
 	VIPS_DEBUG_MSG("vips_image_invalidate_all: %p\n", image);
 
-	(void) vips__link_map(image, FALSE,
-		(VipsSListMap2Fn) vips_image_invalidate_all_cb, NULL, NULL);
+	(void)vips__link_map(image, FALSE,
+		(VipsSListMap2Fn)vips_image_invalidate_all_cb, NULL, NULL);
 }
 
 static void
-vips_image_minimise(VipsImage *image)
-{
+vips_image_minimise(VipsImage* image) {
 	VIPS_DEBUG_MSG("vips_image_minimise: %p\n", image);
 
 	g_signal_emit(image, vips_image_signals[SIG_MINIMISE], 0);
 }
 
-static void *
-vips_image_minimise_all_cb(VipsImage *image, void *a, void *b)
-{
+static void*
+vips_image_minimise_all_cb(VipsImage* image, void* a, void* b) {
 	vips_image_minimise(image);
 
 	return NULL;
@@ -1440,15 +1401,14 @@ vips_image_minimise_all_cb(VipsImage *image, void *a, void *b)
  * The #VipsImage::minimise signal is emitted for all minimised images.
  */
 void
-vips_image_minimise_all(VipsImage *image)
-{
+vips_image_minimise_all(VipsImage* image) {
 	/* Minimisation will modify things like sources, so we can't run it
 	 * from many threads.
 	 */
 	g_mutex_lock(vips__minimise_lock);
 
-	(void) vips__link_map(image, TRUE,
-		(VipsSListMap2Fn) vips_image_minimise_all_cb, NULL, NULL);
+	(void)vips__link_map(image, TRUE,
+		(VipsSListMap2Fn)vips_image_minimise_all_cb, NULL, NULL);
 
 	g_mutex_unlock(vips__minimise_lock);
 }
@@ -1464,17 +1424,15 @@ vips_image_minimise_all(VipsImage *image)
  * Returns: %TRUE if @image is in sequential mode.
  */
 gboolean
-vips_image_is_sequential(VipsImage *image)
-{
+vips_image_is_sequential(VipsImage* image) {
 	return vips_image_get_typeof(image, VIPS_META_SEQUENTIAL);
 }
 
 /* Attach a new time struct, if necessary, and reset it.
  */
 static int
-vips_progress_add(VipsImage *image)
-{
-	VipsProgress *progress;
+vips_progress_add(VipsImage* image) {
+	VipsProgress* progress;
 
 	VIPS_DEBUG_MSG("vips_progress_add: %p\n", image);
 
@@ -1501,8 +1459,7 @@ vips_progress_add(VipsImage *image)
 }
 
 static void
-vips_progress_update(VipsProgress *progress, guint64 processed)
-{
+vips_progress_update(VipsProgress* progress, guint64 processed) {
 	float prop;
 
 	VIPS_DEBUG_MSG("vips_progress_update: %p\n", progress);
@@ -1511,7 +1468,7 @@ vips_progress_update(VipsProgress *progress, guint64 processed)
 
 	progress->run = g_timer_elapsed(progress->start, NULL);
 	progress->npels = processed;
-	prop = (float) progress->npels / (float) progress->tpels;
+	prop = (float)progress->npels / (float)progress->tpels;
 	progress->percent = 100 * prop;
 
 	/* Don't estimate eta until we are 10% in.
@@ -1521,21 +1478,20 @@ vips_progress_update(VipsProgress *progress, guint64 processed)
 }
 
 void
-vips_image_preeval(VipsImage *image)
-{
+vips_image_preeval(VipsImage* image) {
 	if (image->progress_signal) {
 		VIPS_DEBUG_MSG("vips_image_preeval: %p\n", image);
 
 		g_assert(vips_object_sanity(
 			VIPS_OBJECT(image->progress_signal)));
 
-		(void) vips_progress_add(image);
+		(void)vips_progress_add(image);
 
 		/* For vips7 compat, we also have to make sure ->time on the
 		 * image that was originally marked with
 		 * vips_image_set_progress() is valid.
 		 */
-		(void) vips_progress_add(image->progress_signal);
+		(void)vips_progress_add(image->progress_signal);
 
 		if (!vips_image_get_typeof(image, "hide-progress"))
 			g_signal_emit(image->progress_signal,
@@ -1547,8 +1503,7 @@ vips_image_preeval(VipsImage *image)
 /* Updated the number of pixels that have been processed.
  */
 void
-vips_image_eval(VipsImage *image, guint64 processed)
-{
+vips_image_eval(VipsImage* image, guint64 processed) {
 	if (image->progress_signal &&
 		image->time) {
 		VIPS_DEBUG_MSG("vips_image_eval: %p\n", image);
@@ -1574,8 +1529,7 @@ vips_image_eval(VipsImage *image, guint64 processed)
 }
 
 void
-vips_image_posteval(VipsImage *image)
-{
+vips_image_posteval(VipsImage* image) {
 	if (image->progress_signal &&
 		image->progress_signal->time) {
 		gint64 processed;
@@ -1616,15 +1570,13 @@ vips_image_posteval(VipsImage *image)
  * vips_image_set_progress() was called.
  */
 void
-vips_image_set_progress(VipsImage *image, gboolean progress)
-{
+vips_image_set_progress(VipsImage* image, gboolean progress) {
 	if (progress &&
 		!image->progress_signal) {
 		VIPS_DEBUG_MSG("vips_image_set_progress: %p %s\n",
 			image, image->filename);
 		image->progress_signal = image;
-	}
-	else if (!progress)
+	} else if (!progress)
 		image->progress_signal = NULL;
 }
 
@@ -1642,8 +1594,7 @@ vips_image_set_progress(VipsImage *image, gboolean progress)
  * Returns: %TRUE if @image has been killed.
  */
 gboolean
-vips_image_iskilled(VipsImage *image)
-{
+vips_image_iskilled(VipsImage* image) {
 	gboolean kill;
 
 	kill = image->kill;
@@ -1676,8 +1627,7 @@ vips_image_iskilled(VipsImage *image)
  * See also: vips_image_iskilled().
  */
 void
-vips_image_set_kill(VipsImage *image, gboolean kill)
-{
+vips_image_set_kill(VipsImage* image, gboolean kill) {
 	if (image->kill != kill)
 		VIPS_DEBUG_MSG("vips_image_set_kill: %s (%p) %d\n",
 			image->filename, image, kill);
@@ -1689,8 +1639,7 @@ vips_image_set_kill(VipsImage *image, gboolean kill)
  * Assuming that "int" might be 64 Bit wide a buffer size of 26 suffices.
  */
 static void
-vips_image_temp_name(char *name, int size)
-{
+vips_image_temp_name(char* name, int size) {
 	static int global_serial = 0;
 
 	int serial = g_atomic_int_add(&global_serial, 1);
@@ -1711,10 +1660,9 @@ vips_image_temp_name(char *name, int size)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new(void)
-{
-	VipsImage *image;
+VipsImage*
+vips_image_new(void) {
+	VipsImage* image;
 	char filename[26];
 
 	vips_check_init();
@@ -1734,10 +1682,9 @@ vips_image_new(void)
 	return image;
 }
 
-VipsImage *
-vips_image_new_mode(const char *filename, const char *mode)
-{
-	VipsImage *image;
+VipsImage*
+vips_image_new_mode(const char* filename, const char* mode) {
+	VipsImage* image;
 
 	g_assert(filename);
 	g_assert(mode);
@@ -1767,9 +1714,8 @@ vips_image_new_mode(const char *filename, const char *mode)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_memory(void)
-{
+VipsImage*
+vips_image_new_memory(void) {
 	char filename[26];
 
 	vips_image_temp_name(filename, sizeof(filename));
@@ -1786,9 +1732,8 @@ vips_image_new_memory(void)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_memory(void)
-{
+VipsImage*
+vips_image_memory(void) {
 	return vips_image_new_memory();
 }
 
@@ -1805,9 +1750,8 @@ vips_image_memory(void)
  *
  * Returns: transfer full: just the filename component.
  */
-char *
-vips_filename_get_filename(const char *vips_filename)
-{
+char*
+vips_filename_get_filename(const char* vips_filename) {
 	char filename[VIPS_PATH_MAX];
 	char options[VIPS_PATH_MAX];
 
@@ -1829,9 +1773,8 @@ vips_filename_get_filename(const char *vips_filename)
  *
  * Returns: transfer full: just the options component.
  */
-char *
-vips_filename_get_options(const char *vips_filename)
-{
+char*
+vips_filename_get_options(const char* vips_filename) {
 	char filename[VIPS_PATH_MAX];
 	char options[VIPS_PATH_MAX];
 
@@ -1913,15 +1856,14 @@ vips_filename_get_options(const char *vips_filename)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_from_file(const char *name, ...)
-{
+VipsImage*
+vips_image_new_from_file(const char* name, ...) {
 	char filename[VIPS_PATH_MAX];
 	char option_string[VIPS_PATH_MAX];
-	const char *operation_name;
+	const char* operation_name;
 	va_list ap;
 	int result;
-	VipsImage *out;
+	VipsImage* out;
 
 	vips_check_init();
 
@@ -1953,9 +1895,8 @@ vips_image_new_from_file(const char *name, ...)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_from_file_RW(const char *filename)
-{
+VipsImage*
+vips_image_new_from_file_RW(const char* filename) {
 	return vips_image_new_mode(filename, "rw");
 }
 
@@ -1977,11 +1918,10 @@ vips_image_new_from_file_RW(const char *filename)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_from_file_raw(const char *filename,
-	int xsize, int ysize, int bands, guint64 offset)
-{
-	VipsImage *image;
+VipsImage*
+vips_image_new_from_file_raw(const char* filename,
+	int xsize, int ysize, int bands, guint64 offset) {
+	VipsImage* image;
 
 	vips_check_init();
 
@@ -2032,11 +1972,10 @@ vips_image_new_from_file_raw(const char *filename,
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_from_memory(const void *data, size_t size,
-	int width, int height, int bands, VipsBandFormat format)
-{
-	VipsImage *image;
+VipsImage*
+vips_image_new_from_memory(const void* data, size_t size,
+	int width, int height, int bands, VipsBandFormat format) {
+	VipsImage* image;
 	char filename[26];
 
 	vips_check_init();
@@ -2060,7 +1999,7 @@ vips_image_new_from_memory(const void *data, size_t size,
 	if (size < VIPS_IMAGE_SIZEOF_IMAGE(image)) {
 		vips_error("VipsImage",
 			_("memory area too small --- "
-			  "should be %" G_GINT64_FORMAT " bytes, you passed %zd"),
+				"should be %" G_GINT64_FORMAT " bytes, you passed %zd"),
 			VIPS_IMAGE_SIZEOF_IMAGE(image), size);
 		VIPS_UNREF(image);
 		return NULL;
@@ -2070,8 +2009,7 @@ vips_image_new_from_memory(const void *data, size_t size,
 }
 
 static void
-vips_image_new_from_memory_copy_cb(VipsImage *image, void *data_copy)
-{
+vips_image_new_from_memory_copy_cb(VipsImage* image, void* data_copy) {
 	vips_tracked_free(data_copy);
 }
 
@@ -2092,12 +2030,11 @@ vips_image_new_from_memory_copy_cb(VipsImage *image, void *data_copy)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_from_memory_copy(const void *data, size_t size,
-	int width, int height, int bands, VipsBandFormat format)
-{
-	void *data_copy;
-	VipsImage *image;
+VipsImage*
+vips_image_new_from_memory_copy(const void* data, size_t size,
+	int width, int height, int bands, VipsBandFormat format) {
+	void* data_copy;
+	VipsImage* image;
 
 	vips_check_init();
 
@@ -2105,7 +2042,7 @@ vips_image_new_from_memory_copy(const void *data, size_t size,
 		return NULL;
 	memcpy(data_copy, data, size);
 	if (!(image = vips_image_new_from_memory(data_copy, size,
-			  width, height, bands, format))) {
+		width, height, bands, format))) {
 		vips_tracked_free(data_copy);
 		return NULL;
 	}
@@ -2140,20 +2077,19 @@ vips_image_new_from_memory_copy(const void *data, size_t size,
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_from_buffer(const void *buf, size_t len,
-	const char *option_string, ...)
-{
-	const char *operation_name;
+VipsImage*
+vips_image_new_from_buffer(const void* buf, size_t len,
+	const char* option_string, ...) {
+	const char* operation_name;
 	va_list ap;
 	int result;
-	VipsImage *out;
-	VipsBlob *blob;
+	VipsImage* out;
+	VipsBlob* blob;
 
 	vips_check_init();
 
 	if (!(operation_name =
-				vips_foreign_find_load_buffer(buf, len)))
+		vips_foreign_find_load_buffer(buf, len)))
 		return NULL;
 
 	/* We don't take a copy of the data or free it.
@@ -2190,17 +2126,16 @@ vips_image_new_from_buffer(const void *buf, size_t len,
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_from_source(VipsSource *source,
-	const char *option_string, ...)
-{
-	const char *filename =
+VipsImage*
+vips_image_new_from_source(VipsSource* source,
+	const char* option_string, ...) {
+	const char* filename =
 		vips_connection_filename(VIPS_CONNECTION(source));
 
-	const char *operation_name;
+	const char* operation_name;
 	va_list ap;
 	int result;
-	VipsImage *out;
+	VipsImage* out;
 
 	vips_check_init();
 
@@ -2213,8 +2148,7 @@ vips_image_new_from_source(VipsSource *source,
 		result = vips_call_split_option_string(operation_name,
 			option_string, ap, source, &out);
 		va_end(ap);
-	}
-	else if (filename) {
+	} else if (filename) {
 		/* Try with the old file-based loaders.
 		 */
 		if (!(operation_name = vips_foreign_find_load(filename)))
@@ -2224,12 +2158,11 @@ vips_image_new_from_source(VipsSource *source,
 		result = vips_call_split_option_string(operation_name,
 			option_string, ap, filename, &out);
 		va_end(ap);
-	}
-	else if (vips_source_is_mappable(source)) {
+	} else if (vips_source_is_mappable(source)) {
 		/* Try with the old buffer-based loaders.
 		 */
-		VipsBlob *blob;
-		const void *buf;
+		VipsBlob* blob;
+		const void* buf;
 		size_t len;
 
 		if (!(blob = vips_source_map_blob(source)))
@@ -2237,7 +2170,7 @@ vips_image_new_from_source(VipsSource *source,
 
 		buf = vips_blob_get(blob, &len);
 		if (!(operation_name =
-					vips_foreign_find_load_buffer(buf, len))) {
+			vips_foreign_find_load_buffer(buf, len))) {
 			vips_area_unref(VIPS_AREA(blob));
 			return NULL;
 		}
@@ -2248,8 +2181,7 @@ vips_image_new_from_source(VipsSource *source,
 		va_end(ap);
 
 		vips_area_unref(VIPS_AREA(blob));
-	}
-	else {
+	} else {
 		vips_error("VipsImage",
 			"%s", _("unable to load source"));
 		result = -1;
@@ -2277,10 +2209,9 @@ vips_image_new_from_source(VipsSource *source,
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_matrix(int width, int height)
-{
-	VipsImage *image;
+VipsImage*
+vips_image_new_matrix(int width, int height) {
+	VipsImage* image;
 
 	vips_check_init();
 
@@ -2321,11 +2252,10 @@ vips_image_new_matrix(int width, int height)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_matrixv(int width, int height, ...)
-{
+VipsImage*
+vips_image_new_matrixv(int width, int height, ...) {
 	va_list ap;
-	VipsImage *matrix;
+	VipsImage* matrix;
 	int x, y;
 
 	vips_check_init();
@@ -2352,11 +2282,10 @@ vips_image_new_matrixv(int width, int height, ...)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
+VipsImage*
 vips_image_new_matrix_from_array(int width, int height,
-	const double *array, int size)
-{
-	VipsImage *matrix;
+	const double* array, int size) {
+	VipsImage* matrix;
 	int x, y;
 	int i;
 
@@ -2391,10 +2320,9 @@ vips_image_new_matrix_from_array(int width, int height,
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
+VipsImage*
 vips_image_matrix_from_array(int width, int height,
-	const double *array, int size)
-{
+	const double* array, int size) {
 	return vips_image_new_matrix_from_array(width, height,
 		array, size);
 }
@@ -2413,15 +2341,14 @@ vips_image_matrix_from_array(int width, int height,
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_from_image(VipsImage *image, const double *c, int n)
-{
-	VipsObject *scope = (VipsObject *) vips_image_new();
-	VipsImage **t = (VipsImage **) vips_object_local_array(scope, 5);
+VipsImage*
+vips_image_new_from_image(VipsImage* image, const double* c, int n) {
+	VipsObject* scope = (VipsObject*)vips_image_new();
+	VipsImage** t = (VipsImage**)vips_object_local_array(scope, 5);
 
-	double *ones;
+	double* ones;
 	int i;
-	VipsImage *result;
+	VipsImage* result;
 
 	if (!(ones = VIPS_ARRAY(scope, n, double))) {
 		g_object_unref(scope);
@@ -2431,7 +2358,7 @@ vips_image_new_from_image(VipsImage *image, const double *c, int n)
 		ones[i] = 1.0;
 
 	if (vips_black(&t[0], 1, 1, NULL) ||
-		vips_linear(t[0], &t[1], ones, (double *) c, n, NULL) ||
+		vips_linear(t[0], &t[1], ones, (double*)c, n, NULL) ||
 		vips_cast(t[1], &t[2], image->BandFmt, NULL) ||
 		vips_embed(t[2], &t[3], 0, 0, image->Xsize, image->Ysize,
 			"extend", VIPS_EXTEND_COPY, NULL) ||
@@ -2467,10 +2394,9 @@ vips_image_new_from_image(VipsImage *image, const double *c, int n)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_from_image1(VipsImage *image, double c)
-{
-	return vips_image_new_from_image(image, (const double *) &c, 1);
+VipsImage*
+vips_image_new_from_image1(VipsImage* image, double c) {
+	return vips_image_new_from_image(image, (const double*)&c, 1);
 }
 
 /**
@@ -2487,8 +2413,7 @@ vips_image_new_from_image1(VipsImage *image, double c)
  * See also: vips_image_new_temp_file().
  */
 void
-vips_image_set_delete_on_close(VipsImage *image, gboolean delete_on_close)
-{
+vips_image_set_delete_on_close(VipsImage* image, gboolean delete_on_close) {
 	VIPS_DEBUG_MSG("vips_image_set_delete_on_close: %d %s\n",
 		delete_on_close, image->filename);
 
@@ -2509,13 +2434,12 @@ vips_image_set_delete_on_close(VipsImage *image, gboolean delete_on_close)
  * Returns: disc threshold in bytes.
  */
 guint64
-vips_get_disc_threshold(void)
-{
+vips_get_disc_threshold(void) {
 	static gboolean done = FALSE;
 	static guint64 threshold;
 
 	if (!done) {
-		const char *env;
+		const char* env;
 
 		done = TRUE;
 
@@ -2524,10 +2448,7 @@ vips_get_disc_threshold(void)
 		threshold = 100 * 1024 * 1024;
 
 		if ((env = g_getenv("VIPS_DISC_THRESHOLD"))
-#if ENABLE_DEPRECATED
-			|| (env = g_getenv("IM_DISC_THRESHOLD"))
-#endif
-		)
+			)
 			threshold = vips__parse_size(env);
 
 		if (vips__disc_threshold)
@@ -2558,11 +2479,10 @@ vips_get_disc_threshold(void)
  *
  * Returns: the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_new_temp_file(const char *format)
-{
-	char *name;
-	VipsImage *image;
+VipsImage*
+vips_image_new_temp_file(const char* format) {
+	char* name;
+	VipsImage* image;
 
 	vips_check_init();
 
@@ -2582,11 +2502,10 @@ vips_image_new_temp_file(const char *format)
 }
 
 static int
-vips_image_write_gen(VipsRegion *out_region,
-	void *seq, void *a, void *b, gboolean *stop)
-{
-	VipsRegion *ir = (VipsRegion *) seq;
-	VipsRect *r = &out_region->valid;
+vips_image_write_gen(VipsRegion* out_region,
+	void* seq, void* a, void* b, gboolean* stop) {
+	VipsRegion* ir = (VipsRegion*)seq;
+	VipsRect* r = &out_region->valid;
 
 	/*
 	printf("vips_image_write_gen: %p "
@@ -2595,8 +2514,8 @@ vips_image_write_gen(VipsRegion *out_region,
 		r->left, r->top, r->width, r->height);
 	 */
 
-	/* Copy with pointers.
-	 */
+	 /* Copy with pointers.
+	  */
 	if (vips_region_prepare(ir, r) ||
 		vips_region_region(out_region, ir, r, r->left, r->top))
 		return -1;
@@ -2617,8 +2536,7 @@ vips_image_write_gen(VipsRegion *out_region,
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_write(VipsImage *image, VipsImage *out)
-{
+vips_image_write(VipsImage* image, VipsImage* out) {
 	/* image needs to stay alive for this call. It can be unreffed during
 	 * the generate.
 	 */
@@ -2632,8 +2550,8 @@ vips_image_write(VipsImage *image, VipsImage *out)
 	}
 
 	if (vips_image_generate(out,
-			vips_start_one, vips_image_write_gen, vips_stop_one,
-			image, NULL)) {
+		vips_start_one, vips_image_write_gen, vips_stop_one,
+		image, NULL)) {
 		g_object_unref(image);
 		return -1;
 	}
@@ -2647,8 +2565,7 @@ vips_image_write(VipsImage *image, VipsImage *out)
 	 */
 	if (vips_image_ispartial(out)) {
 		vips_object_local(out, image);
-	}
-	else {
+	} else {
 		vips__reorder_clear(out);
 		vips__link_break_all(out);
 		g_object_unref(image);
@@ -2675,11 +2592,10 @@ vips_image_write(VipsImage *image, VipsImage *out)
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_write_to_file(VipsImage *image, const char *name, ...)
-{
+vips_image_write_to_file(VipsImage* image, const char* name, ...) {
 	char filename[VIPS_PATH_MAX];
 	char option_string[VIPS_PATH_MAX];
-	const char *operation_name;
+	const char* operation_name;
 	va_list ap;
 	int result;
 
@@ -2695,7 +2611,7 @@ vips_image_write_to_file(VipsImage *image, const char *name, ...)
 	vips_error_thaw();
 
 	if (operation_name) {
-		VipsTarget *target;
+		VipsTarget* target;
 
 		if (!(target = vips_target_new_to_file(filename)))
 			return -1;
@@ -2706,14 +2622,12 @@ vips_image_write_to_file(VipsImage *image, const char *name, ...)
 		va_end(ap);
 
 		VIPS_UNREF(target);
-	}
-	else if ((operation_name = vips_foreign_find_save(filename))) {
+	} else if ((operation_name = vips_foreign_find_save(filename))) {
 		va_start(ap, name);
 		result = vips_call_split_option_string(operation_name,
 			option_string, ap, image, filename);
 		va_end(ap);
-	}
-	else
+	} else
 		return -1;
 
 	return result;
@@ -2743,14 +2657,13 @@ vips_image_write_to_file(VipsImage *image, const char *name, ...)
  * Returns: 0 on success, -1 on error
  */
 int
-vips_image_write_to_buffer(VipsImage *in,
-	const char *suffix, void **buf, size_t *size,
-	...)
-{
+vips_image_write_to_buffer(VipsImage* in,
+	const char* suffix, void** buf, size_t* size,
+	...) {
 	char filename[VIPS_PATH_MAX];
 	char option_string[VIPS_PATH_MAX];
-	const char *operation_name;
-	VipsBlob *blob;
+	const char* operation_name;
+	VipsBlob* blob;
 	va_list ap;
 	int result;
 
@@ -2761,7 +2674,7 @@ vips_image_write_to_buffer(VipsImage *in,
 	vips_error_thaw();
 
 	if (operation_name) {
-		VipsTarget *target;
+		VipsTarget* target;
 
 		if (!(target = vips_target_new_to_memory()))
 			return -1;
@@ -2778,9 +2691,8 @@ vips_image_write_to_buffer(VipsImage *in,
 
 		g_object_get(target, "blob", &blob, NULL);
 		VIPS_UNREF(target);
-	}
-	else if ((operation_name =
-					 vips_foreign_find_save_buffer(filename))) {
+	} else if ((operation_name =
+		vips_foreign_find_save_buffer(filename))) {
 
 		va_start(ap, size);
 		result = vips_call_split_option_string(operation_name,
@@ -2789,8 +2701,7 @@ vips_image_write_to_buffer(VipsImage *in,
 
 		if (result)
 			return -1;
-	}
-	else
+	} else
 		return -1;
 
 	*buf = NULL;
@@ -2832,12 +2743,11 @@ vips_image_write_to_buffer(VipsImage *in,
  * Returns: 0 on success, -1 on error
  */
 int
-vips_image_write_to_target(VipsImage *in,
-	const char *suffix, VipsTarget *target, ...)
-{
+vips_image_write_to_target(VipsImage* in,
+	const char* suffix, VipsTarget* target, ...) {
 	char filename[VIPS_PATH_MAX];
 	char option_string[VIPS_PATH_MAX];
-	const char *operation_name;
+	const char* operation_name;
 	va_list ap;
 	int result;
 
@@ -2869,20 +2779,19 @@ vips_image_write_to_target(VipsImage *in,
  *
  * Returns: (array length=size) (element-type guint8) (transfer full): return buffer start here
  */
-void *
-vips_image_write_to_memory(VipsImage *in, size_t *size_out)
-{
-	void *buf;
+void*
+vips_image_write_to_memory(VipsImage* in, size_t* size_out) {
+	void* buf;
 	size_t size;
-	VipsImage *x;
+	VipsImage* x;
 
 	size = VIPS_IMAGE_SIZEOF_IMAGE(in);
 	if (!(buf = g_try_malloc(size))) {
 		vips_error("vips_image_write_to_memory",
 			_("out of memory --- size == %dMB"),
-			(int) (size / (1024.0 * 1024.0)));
+			(int)(size / (1024.0 * 1024.0)));
 		g_warning(_("out of memory --- size == %dMB"),
-			(int) (size / (1024.0 * 1024.0)));
+			(int)(size / (1024.0 * 1024.0)));
 		return NULL;
 	}
 
@@ -2917,19 +2826,16 @@ vips_image_write_to_memory(VipsImage *in, size_t *size_out)
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_decode(VipsImage *in, VipsImage **out)
-{
+vips_image_decode(VipsImage* in, VipsImage** out) {
 	/* Keep in sync with vips__vector_to_ink().
 	 */
 	if (in->Coding == VIPS_CODING_LABQ) {
 		if (vips_LabQ2Lab(in, out, NULL))
 			return -1;
-	}
-	else if (in->Coding == VIPS_CODING_RAD) {
+	} else if (in->Coding == VIPS_CODING_RAD) {
 		if (vips_rad2float(in, out, NULL))
 			return -1;
-	}
-	else {
+	} else {
 		if (vips_copy(in, out, NULL))
 			return -1;
 	}
@@ -2949,21 +2855,18 @@ vips_image_decode(VipsImage *in, VipsImage **out)
  * See also: vips_image_decode().
  */
 int
-vips_image_decode_predict(VipsImage *in,
-	int *out_bands, VipsBandFormat *out_format)
-{
+vips_image_decode_predict(VipsImage* in,
+	int* out_bands, VipsBandFormat* out_format) {
 	VipsBandFormat format;
 	int bands;
 
 	if (in->Coding == VIPS_CODING_LABQ) {
 		bands = 3;
 		format = VIPS_FORMAT_FLOAT;
-	}
-	else if (in->Coding == VIPS_CODING_RAD) {
+	} else if (in->Coding == VIPS_CODING_RAD) {
 		bands = 3;
 		format = VIPS_FORMAT_FLOAT;
-	}
-	else {
+	} else {
 		bands = in->Bands;
 		format = in->BandFmt;
 	}
@@ -2990,17 +2893,14 @@ vips_image_decode_predict(VipsImage *in,
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_encode(VipsImage *in, VipsImage **out, VipsCoding coding)
-{
+vips_image_encode(VipsImage* in, VipsImage** out, VipsCoding coding) {
 	if (coding == VIPS_CODING_LABQ) {
 		if (vips_Lab2LabQ(in, out, NULL))
 			return -1;
-	}
-	else if (coding == VIPS_CODING_RAD) {
+	} else if (coding == VIPS_CODING_RAD) {
 		if (vips_float2rad(in, out, NULL))
 			return -1;
-	}
-	else {
+	} else {
 		if (vips_copy(in, out, NULL))
 			return -1;
 	}
@@ -3017,8 +2917,7 @@ vips_image_encode(VipsImage *in, VipsImage **out, VipsCoding coding)
  * architecture and others.
  */
 gboolean
-vips_image_isMSBfirst(VipsImage *image)
-{
+vips_image_isMSBfirst(VipsImage* image) {
 	if (image->magic == VIPS_MAGIC_SPARC)
 		return 1;
 	else
@@ -3032,8 +2931,7 @@ vips_image_isMSBfirst(VipsImage *image)
  * Return %TRUE if @image represents a file on disc in some way.
  */
 gboolean
-vips_image_isfile(VipsImage *image)
-{
+vips_image_isfile(VipsImage* image) {
 	switch (image->dtype) {
 	case VIPS_IMAGE_MMAPIN:
 	case VIPS_IMAGE_MMAPINRW:
@@ -3060,8 +2958,7 @@ vips_image_isfile(VipsImage *image)
  * Return %TRUE if @im represents a partial image (a delayed calculation).
  */
 gboolean
-vips_image_ispartial(VipsImage *image)
-{
+vips_image_ispartial(VipsImage* image) {
 	if (image->dtype == VIPS_IMAGE_PARTIAL)
 		return 1;
 	else
@@ -3079,8 +2976,7 @@ vips_image_ispartial(VipsImage *image)
  * Return %TRUE if @image has an alpha channel.
  */
 gboolean
-vips_image_hasalpha(VipsImage *image)
-{
+vips_image_hasalpha(VipsImage* image) {
 	/* The result of hasalpha is used to turn on things like
 	 * premultiplication, so we are rather conservative about when we
 	 * signal this. We don't want to premultiply things that should not be
@@ -3129,8 +3025,7 @@ vips_image_hasalpha(VipsImage *image)
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_write_prepare(VipsImage *image)
-{
+vips_image_write_prepare(VipsImage* image) {
 	g_assert(vips_object_sanity(VIPS_OBJECT(image)));
 
 	if (image->Xsize <= 0 ||
@@ -3160,7 +3055,7 @@ vips_image_write_prepare(VipsImage *image)
 	case VIPS_IMAGE_SETBUF:
 		if (!image->data &&
 			!(image->data = vips_tracked_malloc(
-				  VIPS_IMAGE_SIZEOF_IMAGE(image))))
+				VIPS_IMAGE_SIZEOF_IMAGE(image))))
 			return -1;
 
 		break;
@@ -3194,8 +3089,7 @@ vips_image_write_prepare(VipsImage *image)
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_write_line(VipsImage *image, int ypos, VipsPel *linebuffer)
-{
+vips_image_write_line(VipsImage* image, int ypos, VipsPel* linebuffer) {
 	int linesize = VIPS_IMAGE_SIZEOF_LINE(image);
 
 	/* Is this the start of eval?
@@ -3256,8 +3150,7 @@ vips_image_write_line(VipsImage *image, int ypos, VipsPel *linebuffer)
 /* Rewind an output file. VIPS images only.
  */
 static int
-vips_image_rewind_output(VipsImage *image)
-{
+vips_image_rewind_output(VipsImage* image) {
 	int fd;
 
 	g_assert(image->dtype == VIPS_IMAGE_OPENOUT);
@@ -3340,10 +3233,9 @@ vips_image_rewind_output(VipsImage *image)
  *
  * Returns: (transfer full): the new #VipsImage, or %NULL on error.
  */
-VipsImage *
-vips_image_copy_memory(VipsImage *image)
-{
-	VipsImage *new;
+VipsImage*
+vips_image_copy_memory(VipsImage* image) {
+	VipsImage* new;
 
 	switch (image->dtype) {
 	case VIPS_IMAGE_SETBUF:
@@ -3395,9 +3287,8 @@ vips_image_copy_memory(VipsImage *image)
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_wio_input(VipsImage *image)
-{
-	VipsImage *t1;
+vips_image_wio_input(VipsImage* image) {
+	VipsImage* t1;
 
 	g_assert(vips_object_sanity(VIPS_OBJECT(image)));
 
@@ -3473,14 +3364,14 @@ vips_image_wio_input(VipsImage *image)
 	case VIPS_IMAGE_OPENIN:
 #ifdef DEBUG_IO
 		printf("vips_image_wio_input: "
-			   "converting openin image for wio input\n");
+			"converting openin image for wio input\n");
 #endif /*DEBUG_IO*/
 
 		/* just mmap() the whole thing.
 		 */
 		if (vips_mapfile(image))
 			return -1;
-		image->data = (VipsPel *) image->baseaddr +
+		image->data = (VipsPel*)image->baseaddr +
 			image->sizeof_header;
 		image->dtype = VIPS_IMAGE_MMAPIN;
 
@@ -3500,14 +3391,13 @@ vips_image_wio_input(VipsImage *image)
 		vips_error("vips_image_wio_input",
 			"%s", _("image not readable"));
 		return -1;
-	}
+}
 
 	return 0;
 }
 
 int
-vips__image_wio_output(VipsImage *image)
-{
+vips__image_wio_output(VipsImage* image) {
 #ifdef DEBUG_IO
 	printf("vips__image_wio_output: WIO output for %s\n",
 		image->filename);
@@ -3545,7 +3435,7 @@ vips__image_wio_output(VipsImage *image)
 		vips_error("vips__image_wio_output",
 			"%s", _("image not writeable"));
 		return -1;
-	}
+}
 
 	return 0;
 }
@@ -3571,8 +3461,7 @@ vips__image_wio_output(VipsImage *image)
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_inplace(VipsImage *image)
-{
+vips_image_inplace(VipsImage* image) {
 	/* Do an vips_image_wio_input(). This will rewind, generate, etc.
 	 */
 	if (vips_image_wio_input(image))
@@ -3623,8 +3512,7 @@ vips_image_inplace(VipsImage *image)
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_pio_input(VipsImage *image)
-{
+vips_image_pio_input(VipsImage* image) {
 	g_assert(vips_object_sanity(VIPS_OBJECT(image)));
 
 #ifdef DEBUG_IO
@@ -3681,7 +3569,7 @@ vips_image_pio_input(VipsImage *image)
 		vips_error("vips_image_pio_input",
 			"%s", _("image not readable"));
 		return -1;
-	}
+}
 
 	return 0;
 }
@@ -3698,8 +3586,7 @@ vips_image_pio_input(VipsImage *image)
  * Returns: 0 on success, or -1 on error.
  */
 int
-vips_image_pio_output(VipsImage *image)
-{
+vips_image_pio_output(VipsImage* image) {
 #ifdef DEBUG_IO
 	printf("vips_image_pio_output: enabling partial output for %s\n",
 		image->filename);
@@ -3732,7 +3619,7 @@ vips_image_pio_output(VipsImage *image)
 		vips_error("vips_image_pio_output",
 			"%s", _("image not writeable"));
 		return -1;
-	}
+}
 
 	return 0;
 }
@@ -3744,8 +3631,7 @@ vips_image_pio_output(VipsImage *image)
  * Return %TRUE if @format is one of the integer types.
  */
 gboolean
-vips_band_format_isint(VipsBandFormat format)
-{
+vips_band_format_isint(VipsBandFormat format) {
 	switch (format) {
 	case VIPS_FORMAT_UCHAR:
 	case VIPS_FORMAT_CHAR:
@@ -3774,8 +3660,7 @@ vips_band_format_isint(VipsBandFormat format)
  * Return %TRUE if @format is one of the unsigned integer types.
  */
 gboolean
-vips_band_format_isuint(VipsBandFormat format)
-{
+vips_band_format_isuint(VipsBandFormat format) {
 	switch (format) {
 	case VIPS_FORMAT_UCHAR:
 	case VIPS_FORMAT_USHORT:
@@ -3804,8 +3689,7 @@ vips_band_format_isuint(VipsBandFormat format)
  * Return %TRUE if @format is uchar or schar.
  */
 gboolean
-vips_band_format_is8bit(VipsBandFormat format)
-{
+vips_band_format_is8bit(VipsBandFormat format) {
 	switch (format) {
 	case VIPS_FORMAT_UCHAR:
 	case VIPS_FORMAT_CHAR:
@@ -3834,8 +3718,7 @@ vips_band_format_is8bit(VipsBandFormat format)
  * Return %TRUE if @format is one of the float types.
  */
 gboolean
-vips_band_format_isfloat(VipsBandFormat format)
-{
+vips_band_format_isfloat(VipsBandFormat format) {
 	switch (format) {
 	case VIPS_FORMAT_FLOAT:
 	case VIPS_FORMAT_DOUBLE:
@@ -3864,8 +3747,7 @@ vips_band_format_isfloat(VipsBandFormat format)
  * Return %TRUE if @fmt is one of the complex types.
  */
 gboolean
-vips_band_format_iscomplex(VipsBandFormat format)
-{
+vips_band_format_iscomplex(VipsBandFormat format) {
 	switch (format) {
 	case VIPS_FORMAT_COMPLEX:
 	case VIPS_FORMAT_DPCOMPLEX:
@@ -3896,17 +3778,15 @@ vips_band_format_iscomplex(VipsBandFormat format)
  * is intended to be used with g_signal_connect.
  */
 void
-vips_image_free_buffer(VipsImage *image, void *buffer)
-{
+vips_image_free_buffer(VipsImage* image, void* buffer) {
 	free(buffer);
 }
 
 /* Handy for debugging: view an image in nip2.
  */
 int
-vips__view_image(VipsImage *image)
-{
-	VipsArrayImage *array;
+vips__view_image(VipsImage* image) {
+	VipsArrayImage* array;
 	int result;
 
 	array = vips_array_image_new(&image, 1);
