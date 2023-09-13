@@ -1,5 +1,4 @@
-# core options
-
+# Alcuni da rimuovere?
 option('deprecated', 
   type: 'boolean', 
   value: true, 
