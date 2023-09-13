@@ -4,8 +4,8 @@ project('vips', 'c', 'cpp',
     default_options: [
         # this is what glib uses (one of our required deps), so we use it too
         'c_std=gnu99',
-	# we use some C++11 features
-	'cpp_std=c++11',
+        # we use some C++11 features
+        'cpp_std=c++11',
         # do a release (optimised) build by default
         'buildtype=release',
         # turn off asserts etc. in release mode
@@ -661,7 +661,7 @@ build_summary = {
      'enable doxygen': [get_option('doxygen')],
      'enable introspection': [enable_introspection],
      'enable examples': [get_option('examples')],
-     'enable cplusplus': [get_option('cplusplus')],
+    #  'enable cplusplus': [get_option('cplusplus')],
      'enable RAD load/save': [get_option('radiance')],
      'enable Analyze7 load/save': [get_option('analyze')],
      'enable PPM load/save': [get_option('ppm')],
@@ -708,19 +708,5 @@ foreach section_title, section : build_summary
 endforeach
 
 subdir('libvips')
-if get_option('gtk_doc')
-    subdir('doc')
-endif
-if get_option('examples')
-  subdir('examples')
-endif
-if get_option('cplusplus')
-  subdir('cplusplus')
-endif
-
-# these lines removed by a regexp for oss-fuzz builds, don't touch!
-subdir('man')
-subdir('po')
 subdir('tools')
-subdir('test')
 subdir('fuzz')

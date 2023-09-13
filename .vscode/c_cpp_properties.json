@@ -4,7 +4,6 @@
       "name": "macos-gcc-arm64",
       "includePath": [
         "${workspaceFolder}/**",
-        "/opt/homebrew/bin/**"
       ],
       "defines": [],
       "macFrameworkPath": [
