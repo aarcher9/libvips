@@ -657,11 +657,8 @@ build_summary = {
     {'enable debug': [get_option('debug')],
      'enable deprecated': [get_option('deprecated')],
      'enable modules': [modules_enabled],
-     'enable gtk-doc': [get_option('gtk_doc')],
      'enable doxygen': [get_option('doxygen')],
      'enable introspection': [enable_introspection],
-     'enable examples': [get_option('examples')],
-    #  'enable cplusplus': [get_option('cplusplus')],
      'enable RAD load/save': [get_option('radiance')],
      'enable Analyze7 load/save': [get_option('analyze')],
      'enable PPM load/save': [get_option('ppm')],
@@ -709,4 +706,3 @@ endforeach
 
 subdir('libvips')
 subdir('tools')
-subdir('fuzz')
