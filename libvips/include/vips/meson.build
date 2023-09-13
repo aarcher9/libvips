@@ -16,20 +16,6 @@ public_other_headers = files(
     'vector.h',
 )
 
-public_deprecated_headers = files(
-    'almostdeprecated.h',
-    'deprecated.h',
-    'dispatch.h',
-    'intl.h',
-    'mask.h',
-    'video.h',
-    'vips7compat.h',
-)
-
-if get_option('deprecated')
-    public_other_headers += public_deprecated_headers
-endif
-
 public_headers = files(
     'arithmetic.h',
     'basic.h',

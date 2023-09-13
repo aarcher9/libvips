@@ -2,9 +2,6 @@ libvips_sources = []
 libvips_components = []
 subdir('include/vips')
 subdir('foreign')
-if get_option('deprecated')
-    subdir('deprecated')
-endif
 subdir('arithmetic')
 subdir('resample')
 subdir('colour')

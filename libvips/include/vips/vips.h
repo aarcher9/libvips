@@ -50,32 +50,32 @@
  * 	- remove old vips7 stuff, you must explicitly include it now
  */
 
-/*
+ /*
 
-	This file is part of VIPS.
+	 This file is part of VIPS.
 
-	VIPS is free software; you can redistribute it and/or modify
-	it under the terms of the GNU Lesser General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	 VIPS is free software; you can redistribute it and/or modify
+	 it under the terms of the GNU Lesser General Public License as published by
+	 the Free Software Foundation; either version 2 of the License, or
+	 (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Lesser General Public License for more details.
+	 This program is distributed in the hope that it will be useful,
+	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU Lesser General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-	02110-1301  USA
+	 You should have received a copy of the GNU Lesser General Public License
+	 along with this program; if not, write to the Free Software
+	 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+	 02110-1301  USA
 
- */
+  */
 
-/*
+  /*
 
-	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
+	  These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+   */
 
 #ifndef VIPS_VIPS_H
 #define VIPS_VIPS_H
@@ -85,8 +85,8 @@
 #include <gmodule.h>
 #include <glib-object.h>
 
-/* Needed for VipsGInputStream.
- */
+   /* Needed for VipsGInputStream.
+	*/
 #include <gio/gio.h>
 
 #ifdef __cplusplus
@@ -108,10 +108,6 @@ extern "C" {
 #include <vips/rect.h>
 
 #include <vips/private.h>
-
-#if VIPS_ENABLE_DEPRECATED
-#include <vips/mask.h>
-#endif
 #include <vips/image.h>
 #include <vips/memory.h>
 #include <vips/error.h>
@@ -138,13 +134,10 @@ extern "C" {
 #include <vips/colour.h>
 #include <vips/draw.h>
 #include <vips/create.h>
-#if VIPS_ENABLE_DEPRECATED
-#include <vips/video.h>
-#endif
 
-/* We can't use _ here since this will be compiled by our clients and they may
- * not have _().
- */
+	/* We can't use _ here since this will be compiled by our clients and they may
+	 * not have _().
+	 */
 #define VIPS_INIT(ARGV0) \
 	(vips_version(3) - vips_version(5) != \
 				VIPS_LIBRARY_CURRENT - VIPS_LIBRARY_AGE \
@@ -158,35 +151,35 @@ extern "C" {
 				  -1) \
 			: vips_init(ARGV0))
 
-VIPS_API
-int vips_init(const char *argv0);
-VIPS_API
-const char *vips_get_argv0(void);
-VIPS_API
-const char *vips_get_prgname(void);
-VIPS_API
-void vips_shutdown(void);
-VIPS_API
-void vips_thread_shutdown(void);
+	VIPS_API
+		int vips_init(const char* argv0);
+	VIPS_API
+		const char* vips_get_argv0(void);
+	VIPS_API
+		const char* vips_get_prgname(void);
+	VIPS_API
+		void vips_shutdown(void);
+	VIPS_API
+		void vips_thread_shutdown(void);
 
-VIPS_API
-void vips_add_option_entries(GOptionGroup *option_group);
+	VIPS_API
+		void vips_add_option_entries(GOptionGroup* option_group);
 
-VIPS_API
-void vips_leak_set(gboolean leak);
+	VIPS_API
+		void vips_leak_set(gboolean leak);
 
-VIPS_API
-void vips_block_untrusted_set(gboolean state);
+	VIPS_API
+		void vips_block_untrusted_set(gboolean state);
 
-VIPS_API
-const char *vips_version_string(void);
-VIPS_API
-int vips_version(int flag);
+	VIPS_API
+		const char* vips_version_string(void);
+	VIPS_API
+		int vips_version(int flag);
 
-VIPS_API
-const char *vips_guess_prefix(const char *argv0, const char *env_name);
-VIPS_API
-const char *vips_guess_libdir(const char *argv0, const char *env_name);
+	VIPS_API
+		const char* vips_guess_prefix(const char* argv0, const char* env_name);
+	VIPS_API
+		const char* vips_guess_libdir(const char* argv0, const char* env_name);
 
 #ifdef __cplusplus
 }

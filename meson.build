@@ -589,9 +589,6 @@ endif
 if cc.has_header('direct.h')
     cfg_var.set('HAVE_DIRECT_H', '1')
 endif
-if get_option('deprecated')
-    cfg_var.set('ENABLE_DEPRECATED', '1')
-endif
 if get_option('nsgif')
     cfg_var.set('HAVE_NSGIF', '1')
 endif
@@ -655,7 +652,6 @@ enable_introspection = gir.found() and (not meson.is_cross_build() or get_option
 build_summary = {
   'Build options':
     {'enable debug': [get_option('debug')],
-     'enable deprecated': [get_option('deprecated')],
      'enable modules': [modules_enabled],
      'enable doxygen': [get_option('doxygen')],
      'enable introspection': [enable_introspection],
