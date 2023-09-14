@@ -35,6 +35,7 @@ arithmetic_sources = files(
     'add.c',
     'linear.c',
     'invert.c',
+    # 'wand.c',
     'math2.c',
     'round.c',
 )

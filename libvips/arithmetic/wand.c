@@ -1,58 +1,3 @@
-/* photographic negative ... just an example, really
- *
- * Copyright: 1990, N. Dessipris.
- *
- * Author: Nicos Dessipris
- * Written on: 12/02/1990
- * Modified on :
- * 7/7/93 JC
- *      - memory leaks fixed
- *      - adapted for partial v2
- *      - ANSIfied
- * 22/2/95 JC
- *	- tidied up again
- * 2/9/09
- * 	- gtk-doc comment
- * 23/8/11
- * 	- rewrite as a class
- * 7/12/12
- * 	- only invert real part of complex
- */
-
- /*
-
-	 Copyright (C) 1991-2005 The National Gallery
-
-	 This library is free software; you can redistribute it and/or
-	 modify it under the terms of the GNU Lesser General Public
-	 License as published by the Free Software Foundation; either
-	 version 2.1 of the License, or (at your option) any later version.
-
-	 This library is distributed in the hope that it will be useful,
-	 but WITHOUT ANY WARRANTY; without even the implied warranty of
-	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	 Lesser General Public License for more details.
-
-	 You should have received a copy of the GNU Lesser General Public
-	 License along with this library; if not, write to the Free Software
-	 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-	 02110-1301  USA
-
-  */
-
-  /*
-
-	  These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
-
-   */
-
-   /*
-   #define DEBUG
-	*/
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /*HAVE_CONFIG_H*/
 #include <glib/gi18n-lib.h>
 
 #include <stdio.h>
@@ -171,7 +116,7 @@ static void
 vips_invert_class_init(VipsInvertClass* class) {
 	VipsObjectClass* object_class = (VipsObjectClass*) class;
 	VipsArithmeticClass* aclass = VIPS_ARITHMETIC_CLASS(class);
-	// printf("\nINVERTING\n");
+
 	object_class->nickname = "invert";
 	object_class->description = _("invert an image");
 
@@ -181,25 +126,8 @@ vips_invert_class_init(VipsInvertClass* class) {
 }
 
 static void
-vips_invert_init(VipsInvert* invert) {
-}
+vips_invert_init(VipsInvert* invert) {}
 
-/**
- * vips_invert: (method)
- * @in: input image
- * @out: (out): output image
- * @...: %NULL-terminated list of optional named arguments
- *
- * For unsigned formats, this operation calculates (max - @in), eg. (255 -
- * @in) for uchar. For signed and float formats, this operation calculates (-1
- * @in).
- *
- * For complex images, only the real part is inverted. See also vips_conj().
- *
- * See also: vips_linear().
- *
- * Returns: 0 on success, -1 on error
- */
 int
 vips_invert(VipsImage* in, VipsImage** out, ...) {
 	va_list ap;
