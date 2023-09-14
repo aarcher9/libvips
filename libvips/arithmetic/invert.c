@@ -171,7 +171,7 @@ static void
 vips_invert_class_init(VipsInvertClass* class) {
 	VipsObjectClass* object_class = (VipsObjectClass*) class;
 	VipsArithmeticClass* aclass = VIPS_ARITHMETIC_CLASS(class);
-	// printf("\nINVERTING\n");
+
 	object_class->nickname = "invert";
 	object_class->description = _("invert an image");
 
