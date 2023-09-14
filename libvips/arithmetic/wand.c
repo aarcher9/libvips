@@ -1,17 +1,17 @@
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif /*HAVE_CONFIG_H*/
 #include <glib/gi18n-lib.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
 #include <vips/vips.h>
-
 #include "unary.h"
 
-typedef VipsUnary VipsInvert;
-typedef VipsUnaryClass VipsInvertClass;
+typedef VipsUnary VipsWand;
+typedef VipsUnaryClass VipsWandClass;
 
-G_DEFINE_TYPE(VipsInvert, vips_invert, VIPS_TYPE_UNARY);
+G_DEFINE_TYPE(VipsWand, vips_wand, VIPS_TYPE_UNARY);
 
 #define LOOP(TYPE, L) \
 	{ \
@@ -46,7 +46,7 @@ G_DEFINE_TYPE(VipsInvert, vips_invert, VIPS_TYPE_UNARY);
 	}
 
 static void
-vips_invert_buffer(VipsArithmetic* arithmetic,
+vips_wand_buffer(VipsArithmetic* arithmetic,
 	VipsPel* out, VipsPel** in, int width) {
 	VipsImage* im = arithmetic->ready[0];
 	const int sz = width * vips_image_get_bands(im);
@@ -105,36 +105,34 @@ vips_invert_buffer(VipsArithmetic* arithmetic,
 #define D VIPS_FORMAT_DOUBLE
 #define DX VIPS_FORMAT_DPCOMPLEX
 
- /* Format doesn't change with invert.
-  */
-static const VipsBandFormat vips_invert_format_table[10] = {
+static const VipsBandFormat vips_wand_format_table[10] = {
 	/* Band format:  UC  C  US  S  UI  I  F  X  D  DX */
 	/* Promotion: */ UC, C, US, S, UI, I, F, X, D, DX
 };
 
 static void
-vips_invert_class_init(VipsInvertClass* class) {
+vips_wand_class_init(VipsWandClass* class) {
 	VipsObjectClass* object_class = (VipsObjectClass*) class;
 	VipsArithmeticClass* aclass = VIPS_ARITHMETIC_CLASS(class);
 
-	object_class->nickname = "invert";
-	object_class->description = _("invert an image");
+	object_class->nickname = "wand";
+	object_class->description = _("do a magic trick!");
 
-	aclass->process_line = vips_invert_buffer;
+	aclass->process_line = vips_wand_buffer;
 
-	vips_arithmetic_set_format_table(aclass, vips_invert_format_table);
+	vips_arithmetic_set_format_table(aclass, vips_wand_format_table);
 }
 
 static void
-vips_invert_init(VipsInvert* invert) {}
+vips_wand_init(VipsWand* wand) {}
 
 int
-vips_invert(VipsImage* in, VipsImage** out, ...) {
+vips_wand(VipsImage* in, VipsImage** out, ...) {
 	va_list ap;
 	int result;
 
 	va_start(ap, out);
-	result = vips_call_split("invert", ap, in, out);
+	result = vips_call_split("wand", ap, in, out);
 	va_end(ap);
 
 	return result;

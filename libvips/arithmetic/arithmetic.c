@@ -10,36 +10,36 @@
  * 	  maplut (image, arithmetic (lut)) for 8/16 bit int images
  */
 
-/*
+ /*
 
-	Copyright (C) 1991-2005 The National Gallery
+	 Copyright (C) 1991-2005 The National Gallery
 
-	This library is free software; you can redistribute it and/or
-	modify it under the terms of the GNU Lesser General Public
-	License as published by the Free Software Foundation; either
-	version 2.1 of the License, or (at your option) any later version.
+	 This library is free software; you can redistribute it and/or
+	 modify it under the terms of the GNU Lesser General Public
+	 License as published by the Free Software Foundation; either
+	 version 2.1 of the License, or (at your option) any later version.
 
-	This library is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Lesser General Public License for more details.
+	 This library is distributed in the hope that it will be useful,
+	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	 Lesser General Public License for more details.
 
-	You should have received a copy of the GNU Lesser General Public
-	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-	02110-1301  USA
+	 You should have received a copy of the GNU Lesser General Public
+	 License along with this library; if not, write to the Free Software
+	 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+	 02110-1301  USA
 
- */
+  */
 
-/*
+  /*
 
-	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
+	  These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+   */
 
-/*
-#define DEBUG
- */
+   /*
+   #define DEBUG
+	*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -55,212 +55,212 @@
 
 #include "parithmetic.h"
 
-/**
- * SECTION: arithmetic
- * @short_description: pixel arithmetic, trig, log, statistics
- * @stability: Stable
- * @include: vips/vips.h
- *
- * These operations perform pixel arithmetic, that is, they perform an
- * arithmetic operation, such as addition, on every pixel in an image or a
- * pair of images. All (except in a few cases noted below) will work with
- * images of any type or any mixture of types, of any size and of any number
- * of bands.
- *
- * For binary operations, if the number of bands differs, one of the images
- * must have one band. In this case, an n-band image is formed from the
- * one-band image by joining n copies of the one-band image together, and then
- * the two n-band images are operated upon.
- *
- * In the same way, for operations that take an array constant, such as
- * vips_remainder_const(), you can mix single-element arrays or single-band
- * images freely.
- *
- * Arithmetic operations try to preserve precision by increasing the number of
- * bits in the output image when necessary. Generally, this follows the ANSI C
- * conventions for type promotion, so multiplying two
- * #VIPS_FORMAT_UCHAR images together, for example, produces a
- * #VIPS_FORMAT_USHORT image, and taking the vips_cos() of a
- * #VIPS_FORMAT_USHORT image produces #VIPS_FORMAT_FLOAT image.
- *
- * After processing, use vips_cast() and friends to take then format back down
- * again. vips_cast_uchar(), for example, will cast any image down to 8-bit
- * unsigned.
- *
- * Images have an *interpretation*: a meaning for the pixel values. With
- * #VIPS_INTERPRETATION_sRGB, for example, the first three bands will be
- * interpreted (for example, by a saver like vips_jpegsave()) as R, G and B,
- * with values in 0 - 255, and any fourth band will be interpreted as an
- * alpha channel.
- *
- * After arithmetic, you may wish to change the interpretation (for example to
- * save as 16-bit PNG). Use vips_copy() to change the interpretation without
- * changing pixels.
- *
- * For binary arithmetic operations, type promotion occurs in two stages.
- * First, the two input images are cast up to the smallest common format,
- * that is, the type with the smallest range that can represent the full
- * range of both inputs. This conversion can be represented as a table:
- *
- * <table>
- *   <title>Smallest common format</title>
- *   <tgroup cols='10' align='left' colsep='1' rowsep='1'>
- *     <thead>
- *       <row>
- *         <entry>@in2/@in1</entry>
- *         <entry>uchar</entry>
- *         <entry>char</entry>
- *         <entry>ushort</entry>
- *         <entry>short</entry>
- *         <entry>uint</entry>
- *         <entry>int</entry>
- *         <entry>float</entry>
- *         <entry>double</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *     </thead>
- *     <tbody>
- *       <row>
- *         <entry>uchar</entry>
- *         <entry>ushort</entry>
- *         <entry>short</entry>
- *         <entry>ushort</entry>
- *         <entry>short</entry>
- *         <entry>uint</entry>
- *         <entry>int</entry>
- *         <entry>float</entry>
- *         <entry>double</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *       <row>
- *         <entry>char</entry>
- *         <entry>short</entry>
- *         <entry>short</entry>
- *         <entry>short</entry>
- *         <entry>short</entry>
- *         <entry>int</entry>
- *         <entry>int</entry>
- *         <entry>float</entry>
- *         <entry>double</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *       <row>
- *         <entry>ushort</entry>
- *         <entry>ushort</entry>
- *         <entry>short</entry>
- *         <entry>ushort</entry>
- *         <entry>short</entry>
- *         <entry>uint</entry>
- *         <entry>int</entry>
- *         <entry>float</entry>
- *         <entry>double</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *       <row>
- *         <entry>short</entry>
- *         <entry>short</entry>
- *         <entry>short</entry>
- *         <entry>short</entry>
- *         <entry>short</entry>
- *         <entry>int</entry>
- *         <entry>int</entry>
- *         <entry>float</entry>
- *         <entry>double</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *       <row>
- *         <entry>uint</entry>
- *         <entry>uint</entry>
- *         <entry>int</entry>
- *         <entry>uint</entry>
- *         <entry>int</entry>
- *         <entry>uint</entry>
- *         <entry>int</entry>
- *         <entry>float</entry>
- *         <entry>double</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *       <row>
- *         <entry>int</entry>
- *         <entry>int</entry>
- *         <entry>int</entry>
- *         <entry>int</entry>
- *         <entry>int</entry>
- *         <entry>int</entry>
- *         <entry>int</entry>
- *         <entry>float</entry>
- *         <entry>double</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *       <row>
- *         <entry>float</entry>
- *         <entry>float</entry>
- *         <entry>float</entry>
- *         <entry>float</entry>
- *         <entry>float</entry>
- *         <entry>float</entry>
- *         <entry>float</entry>
- *         <entry>float</entry>
- *         <entry>double</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *       <row>
- *         <entry>double</entry>
- *         <entry>double</entry>
- *         <entry>double</entry>
- *         <entry>double</entry>
- *         <entry>double</entry>
- *         <entry>double</entry>
- *         <entry>double</entry>
- *         <entry>double</entry>
- *         <entry>double</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *       <row>
- *         <entry>complex</entry>
- *         <entry>complex</entry>
- *         <entry>complex</entry>
- *         <entry>complex</entry>
- *         <entry>complex</entry>
- *         <entry>complex</entry>
- *         <entry>complex</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *         <entry>complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *       <row>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *         <entry>double complex</entry>
- *       </row>
- *     </tbody>
- *   </tgroup>
- * </table>
- *
- * In the second stage, the operation is performed between the two identical
- * types to form the output. The details vary between operations, but
- * generally the principle is that the output type should be large enough to
- * represent the whole range of possible values, except that int never becomes
- * float.
- */
+	/**
+	 * SECTION: arithmetic
+	 * @short_description: pixel arithmetic, trig, log, statistics
+	 * @stability: Stable
+	 * @include: vips/vips.h
+	 *
+	 * These operations perform pixel arithmetic, that is, they perform an
+	 * arithmetic operation, such as addition, on every pixel in an image or a
+	 * pair of images. All (except in a few cases noted below) will work with
+	 * images of any type or any mixture of types, of any size and of any number
+	 * of bands.
+	 *
+	 * For binary operations, if the number of bands differs, one of the images
+	 * must have one band. In this case, an n-band image is formed from the
+	 * one-band image by joining n copies of the one-band image together, and then
+	 * the two n-band images are operated upon.
+	 *
+	 * In the same way, for operations that take an array constant, such as
+	 * vips_remainder_const(), you can mix single-element arrays or single-band
+	 * images freely.
+	 *
+	 * Arithmetic operations try to preserve precision by increasing the number of
+	 * bits in the output image when necessary. Generally, this follows the ANSI C
+	 * conventions for type promotion, so multiplying two
+	 * #VIPS_FORMAT_UCHAR images together, for example, produces a
+	 * #VIPS_FORMAT_USHORT image, and taking the vips_cos() of a
+	 * #VIPS_FORMAT_USHORT image produces #VIPS_FORMAT_FLOAT image.
+	 *
+	 * After processing, use vips_cast() and friends to take then format back down
+	 * again. vips_cast_uchar(), for example, will cast any image down to 8-bit
+	 * unsigned.
+	 *
+	 * Images have an *interpretation*: a meaning for the pixel values. With
+	 * #VIPS_INTERPRETATION_sRGB, for example, the first three bands will be
+	 * interpreted (for example, by a saver like vips_jpegsave()) as R, G and B,
+	 * with values in 0 - 255, and any fourth band will be interpreted as an
+	 * alpha channel.
+	 *
+	 * After arithmetic, you may wish to change the interpretation (for example to
+	 * save as 16-bit PNG). Use vips_copy() to change the interpretation without
+	 * changing pixels.
+	 *
+	 * For binary arithmetic operations, type promotion occurs in two stages.
+	 * First, the two input images are cast up to the smallest common format,
+	 * that is, the type with the smallest range that can represent the full
+	 * range of both inputs. This conversion can be represented as a table:
+	 *
+	 * <table>
+	 *   <title>Smallest common format</title>
+	 *   <tgroup cols='10' align='left' colsep='1' rowsep='1'>
+	 *     <thead>
+	 *       <row>
+	 *         <entry>@in2/@in1</entry>
+	 *         <entry>uchar</entry>
+	 *         <entry>char</entry>
+	 *         <entry>ushort</entry>
+	 *         <entry>short</entry>
+	 *         <entry>uint</entry>
+	 *         <entry>int</entry>
+	 *         <entry>float</entry>
+	 *         <entry>double</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *     </thead>
+	 *     <tbody>
+	 *       <row>
+	 *         <entry>uchar</entry>
+	 *         <entry>ushort</entry>
+	 *         <entry>short</entry>
+	 *         <entry>ushort</entry>
+	 *         <entry>short</entry>
+	 *         <entry>uint</entry>
+	 *         <entry>int</entry>
+	 *         <entry>float</entry>
+	 *         <entry>double</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *       <row>
+	 *         <entry>char</entry>
+	 *         <entry>short</entry>
+	 *         <entry>short</entry>
+	 *         <entry>short</entry>
+	 *         <entry>short</entry>
+	 *         <entry>int</entry>
+	 *         <entry>int</entry>
+	 *         <entry>float</entry>
+	 *         <entry>double</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *       <row>
+	 *         <entry>ushort</entry>
+	 *         <entry>ushort</entry>
+	 *         <entry>short</entry>
+	 *         <entry>ushort</entry>
+	 *         <entry>short</entry>
+	 *         <entry>uint</entry>
+	 *         <entry>int</entry>
+	 *         <entry>float</entry>
+	 *         <entry>double</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *       <row>
+	 *         <entry>short</entry>
+	 *         <entry>short</entry>
+	 *         <entry>short</entry>
+	 *         <entry>short</entry>
+	 *         <entry>short</entry>
+	 *         <entry>int</entry>
+	 *         <entry>int</entry>
+	 *         <entry>float</entry>
+	 *         <entry>double</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *       <row>
+	 *         <entry>uint</entry>
+	 *         <entry>uint</entry>
+	 *         <entry>int</entry>
+	 *         <entry>uint</entry>
+	 *         <entry>int</entry>
+	 *         <entry>uint</entry>
+	 *         <entry>int</entry>
+	 *         <entry>float</entry>
+	 *         <entry>double</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *       <row>
+	 *         <entry>int</entry>
+	 *         <entry>int</entry>
+	 *         <entry>int</entry>
+	 *         <entry>int</entry>
+	 *         <entry>int</entry>
+	 *         <entry>int</entry>
+	 *         <entry>int</entry>
+	 *         <entry>float</entry>
+	 *         <entry>double</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *       <row>
+	 *         <entry>float</entry>
+	 *         <entry>float</entry>
+	 *         <entry>float</entry>
+	 *         <entry>float</entry>
+	 *         <entry>float</entry>
+	 *         <entry>float</entry>
+	 *         <entry>float</entry>
+	 *         <entry>float</entry>
+	 *         <entry>double</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *       <row>
+	 *         <entry>double</entry>
+	 *         <entry>double</entry>
+	 *         <entry>double</entry>
+	 *         <entry>double</entry>
+	 *         <entry>double</entry>
+	 *         <entry>double</entry>
+	 *         <entry>double</entry>
+	 *         <entry>double</entry>
+	 *         <entry>double</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *       <row>
+	 *         <entry>complex</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *       <row>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *         <entry>double complex</entry>
+	 *       </row>
+	 *     </tbody>
+	 *   </tgroup>
+	 * </table>
+	 *
+	 * In the second stage, the operation is performed between the two identical
+	 * types to form the output. The details vary between operations, but
+	 * generally the principle is that the output type should be large enough to
+	 * represent the whole range of possible values, except that int never becomes
+	 * float.
+	 */
 
 G_DEFINE_ABSTRACT_TYPE(VipsArithmetic, vips_arithmetic, VIPS_TYPE_OPERATION);
 
@@ -277,9 +277,9 @@ G_DEFINE_ABSTRACT_TYPE(VipsArithmetic, vips_arithmetic, VIPS_TYPE_OPERATION);
 #define D VIPS_FORMAT_DOUBLE
 #define DX VIPS_FORMAT_DPCOMPLEX
 
-/* For two integer types, the "largest", ie. one which can represent the
- * full range of both.
- */
+ /* For two integer types, the "largest", ie. one which can represent the
+  * full range of both.
+  */
 static VipsBandFormat format_largest[6][6] = {
 	/* UC  C   US  S   UI  I */
 	/* UC */ { UC, S, US, S, UI, I },
@@ -293,8 +293,7 @@ static VipsBandFormat format_largest[6][6] = {
 /* For two formats, find one which can represent the full range of both.
  */
 static VipsBandFormat
-vips_format_common(VipsBandFormat a, VipsBandFormat b)
-{
+vips_format_common(VipsBandFormat a, VipsBandFormat b) {
 	if (vips_band_format_iscomplex(a) ||
 		vips_band_format_iscomplex(b)) {
 		if (a == VIPS_FORMAT_DPCOMPLEX ||
@@ -302,22 +301,19 @@ vips_format_common(VipsBandFormat a, VipsBandFormat b)
 			return VIPS_FORMAT_DPCOMPLEX;
 		else
 			return VIPS_FORMAT_COMPLEX;
-	}
-	else if (vips_band_format_isfloat(a) ||
+	} else if (vips_band_format_isfloat(a) ||
 		vips_band_format_isfloat(b)) {
 		if (a == VIPS_FORMAT_DOUBLE ||
 			b == VIPS_FORMAT_DOUBLE)
 			return VIPS_FORMAT_DOUBLE;
 		else
 			return VIPS_FORMAT_FLOAT;
-	}
-	else
+	} else
 		return format_largest[a][b];
 }
 
 int
-vips__formatalike_vec(VipsImage **in, VipsImage **out, int n)
-{
+vips__formatalike_vec(VipsImage** in, VipsImage** out, int n) {
 	int i;
 	VipsBandFormat format;
 
@@ -334,8 +330,7 @@ vips__formatalike_vec(VipsImage **in, VipsImage **out, int n)
 			 */
 			out[i] = in[i];
 			g_object_ref(in[i]);
-		}
-		else {
+		} else {
 			if (vips_cast(in[i], &out[i], format, NULL))
 				return -1;
 		}
@@ -344,8 +339,7 @@ vips__formatalike_vec(VipsImage **in, VipsImage **out, int n)
 }
 
 int
-vips__sizealike_vec(VipsImage **in, VipsImage **out, int n)
-{
+vips__sizealike_vec(VipsImage** in, VipsImage** out, int n) {
 	int i;
 	int width_max;
 	int height_max;
@@ -367,10 +361,9 @@ vips__sizealike_vec(VipsImage **in, VipsImage **out, int n)
 			 */
 			out[i] = in[i];
 			g_object_ref(in[i]);
-		}
-		else {
+		} else {
 			if (vips_embed(in[i], &out[i],
-					0, 0, width_max, height_max, NULL))
+				0, 0, width_max, height_max, NULL))
 				return -1;
 		}
 
@@ -380,9 +373,8 @@ vips__sizealike_vec(VipsImage **in, VipsImage **out, int n)
 /* Make an n-band image. Input 1 or n bands.
  */
 int
-vips__bandup(const char *domain, VipsImage *in, VipsImage **out, int n)
-{
-	VipsImage **bands;
+vips__bandup(const char* domain, VipsImage* in, VipsImage** out, int n) {
+	VipsImage** bands;
 	int i;
 	int result;
 
@@ -398,7 +390,7 @@ vips__bandup(const char *domain, VipsImage *in, VipsImage **out, int n)
 		return -1;
 	}
 
-	if (!(bands = VIPS_ARRAY(NULL, n, VipsImage *)))
+	if (!(bands = VIPS_ARRAY(NULL, n, VipsImage*)))
 		return -1;
 	for (i = 0; i < n; i++)
 		bands[i] = in;
@@ -415,9 +407,8 @@ vips__bandup(const char *domain, VipsImage *in, VipsImage **out, int n)
  * the image up to three bands.
  */
 int
-vips__bandalike_vec(const char *domain,
-	VipsImage **in, VipsImage **out, int n, int base_bands)
-{
+vips__bandalike_vec(const char* domain,
+	VipsImage** in, VipsImage** out, int n, int base_bands) {
 	int i;
 	int max_bands;
 	VipsInterpretation interpretation;
@@ -448,8 +439,7 @@ vips__bandalike_vec(const char *domain,
 			 */
 			out[i] = in[i];
 			g_object_ref(in[i]);
-		}
-		else {
+		} else {
 			if (vips__bandup(domain, in[i], &out[i], max_bands))
 				return -1;
 
@@ -461,11 +451,10 @@ vips__bandalike_vec(const char *domain,
 }
 
 int
-vips__formatalike(VipsImage *in1, VipsImage *in2,
-	VipsImage **out1, VipsImage **out2)
-{
-	VipsImage *in[2];
-	VipsImage *out[2];
+vips__formatalike(VipsImage* in1, VipsImage* in2,
+	VipsImage** out1, VipsImage** out2) {
+	VipsImage* in[2];
+	VipsImage* out[2];
 
 	in[0] = in1;
 	in[1] = in2;
@@ -480,11 +469,10 @@ vips__formatalike(VipsImage *in1, VipsImage *in2,
 }
 
 int
-vips__sizealike(VipsImage *in1, VipsImage *in2,
-	VipsImage **out1, VipsImage **out2)
-{
-	VipsImage *in[2];
-	VipsImage *out[2];
+vips__sizealike(VipsImage* in1, VipsImage* in2,
+	VipsImage** out1, VipsImage** out2) {
+	VipsImage* in[2];
+	VipsImage* out[2];
 
 	in[0] = in1;
 	in[1] = in2;
@@ -499,11 +487,10 @@ vips__sizealike(VipsImage *in1, VipsImage *in2,
 }
 
 int
-vips__bandalike(const char *domain,
-	VipsImage *in1, VipsImage *in2, VipsImage **out1, VipsImage **out2)
-{
-	VipsImage *in[2];
-	VipsImage *out[2];
+vips__bandalike(const char* domain,
+	VipsImage* in1, VipsImage* in2, VipsImage** out1, VipsImage** out2) {
+	VipsImage* in[2];
+	VipsImage* out[2];
 
 	in[0] = in1;
 	in[1] = in2;
@@ -520,22 +507,21 @@ vips__bandalike(const char *domain,
 /* Our sequence value.
  */
 typedef struct {
-	VipsArithmetic *arithmetic;
+	VipsArithmetic* arithmetic;
 
 	/* Set of input regions.
 	 */
-	VipsRegion **ir;
+	VipsRegion** ir;
 
 	/* For each input, an input pointer.
 	 */
-	VipsPel **p;
+	VipsPel** p;
 
 } VipsArithmeticSequence;
 
 static int
-vips_arithmetic_stop(void *vseq, void *a, void *b)
-{
-	VipsArithmeticSequence *seq = (VipsArithmeticSequence *) vseq;
+vips_arithmetic_stop(void* vseq, void* a, void* b) {
+	VipsArithmeticSequence* seq = (VipsArithmeticSequence*)vseq;
 
 	if (seq->ir) {
 		int i;
@@ -552,13 +538,12 @@ vips_arithmetic_stop(void *vseq, void *a, void *b)
 	return 0;
 }
 
-static void *
-vips_arithmetic_start(VipsImage *out, void *a, void *b)
-{
-	VipsImage **in = (VipsImage **) a;
-	VipsArithmetic *arithmetic = (VipsArithmetic *) b;
+static void*
+vips_arithmetic_start(VipsImage* out, void* a, void* b) {
+	VipsImage** in = (VipsImage**)a;
+	VipsArithmetic* arithmetic = (VipsArithmetic*)b;
 
-	VipsArithmeticSequence *seq;
+	VipsArithmeticSequence* seq;
 	int i, n;
 
 	if (!(seq = VIPS_NEW(NULL, VipsArithmeticSequence)))
@@ -575,7 +560,7 @@ vips_arithmetic_start(VipsImage *out, void *a, void *b)
 
 	/* Allocate space for region array.
 	 */
-	if (!(seq->ir = VIPS_ARRAY(NULL, n + 1, VipsRegion *))) {
+	if (!(seq->ir = VIPS_ARRAY(NULL, n + 1, VipsRegion*))) {
 		vips_arithmetic_stop(seq, NULL, NULL);
 		return NULL;
 	}
@@ -591,7 +576,7 @@ vips_arithmetic_start(VipsImage *out, void *a, void *b)
 
 	/* Input pointers.
 	 */
-	if (!(seq->p = VIPS_ARRAY(NULL, n + 1, VipsPel *))) {
+	if (!(seq->p = VIPS_ARRAY(NULL, n + 1, VipsPel*))) {
 		vips_arithmetic_stop(seq, NULL, NULL);
 		return NULL;
 	}
@@ -600,16 +585,15 @@ vips_arithmetic_start(VipsImage *out, void *a, void *b)
 }
 
 static int
-vips_arithmetic_gen(VipsRegion *out_region,
-	void *vseq, void *a, void *b, gboolean *stop)
-{
-	VipsArithmeticSequence *seq = (VipsArithmeticSequence *) vseq;
-	VipsRegion **ir = seq->ir;
-	VipsArithmetic *arithmetic = VIPS_ARITHMETIC(b);
-	VipsArithmeticClass *class = VIPS_ARITHMETIC_GET_CLASS(arithmetic);
-	VipsRect *r = &out_region->valid;
+vips_arithmetic_gen(VipsRegion* out_region,
+	void* vseq, void* a, void* b, gboolean* stop) {
+	VipsArithmeticSequence* seq = (VipsArithmeticSequence*)vseq;
+	VipsRegion** ir = seq->ir;
+	VipsArithmetic* arithmetic = VIPS_ARITHMETIC(b);
+	VipsArithmeticClass* class = VIPS_ARITHMETIC_GET_CLASS(arithmetic);
+	VipsRect* r = &out_region->valid;
 
-	VipsPel *q;
+	VipsPel* q;
 	int i, y;
 
 	/* Prepare all input regions and make buffer pointers.
@@ -617,10 +601,10 @@ vips_arithmetic_gen(VipsRegion *out_region,
 	if (vips_reorder_prepare_many(out_region->im, ir, r))
 		return -1;
 	for (i = 0; ir[i]; i++)
-		seq->p[i] = (VipsPel *)
-			VIPS_REGION_ADDR(ir[i], r->left, r->top);
+		seq->p[i] = (VipsPel*)
+		VIPS_REGION_ADDR(ir[i], r->left, r->top);
 	seq->p[i] = NULL;
-	q = (VipsPel *) VIPS_REGION_ADDR(out_region, r->left, r->top);
+	q = (VipsPel*)VIPS_REGION_ADDR(out_region, r->left, r->top);
 
 	VIPS_GATE_START("vips_arithmetic_gen: work");
 
@@ -640,16 +624,15 @@ vips_arithmetic_gen(VipsRegion *out_region,
 }
 
 static int
-vips_arithmetic_build(VipsObject *object)
-{
-	VipsObjectClass *class = VIPS_OBJECT_GET_CLASS(object);
-	VipsArithmetic *arithmetic = VIPS_ARITHMETIC(object);
-	VipsArithmeticClass *aclass = VIPS_ARITHMETIC_GET_CLASS(arithmetic);
+vips_arithmetic_build(VipsObject* object) {
+	VipsObjectClass* class = VIPS_OBJECT_GET_CLASS(object);
+	VipsArithmetic* arithmetic = VIPS_ARITHMETIC(object);
+	VipsArithmeticClass* aclass = VIPS_ARITHMETIC_GET_CLASS(arithmetic);
 
-	VipsImage **decode;
-	VipsImage **format;
-	VipsImage **band;
-	VipsImage **size;
+	VipsImage** decode;
+	VipsImage** format;
+	VipsImage** band;
+	VipsImage** size;
 	int i;
 
 #ifdef DEBUG
@@ -663,13 +646,13 @@ vips_arithmetic_build(VipsObject *object)
 
 	g_object_set(arithmetic, "out", vips_image_new(), NULL);
 
-	decode = (VipsImage **)
+	decode = (VipsImage**)
 		vips_object_local_array(object, arithmetic->n);
-	format = (VipsImage **)
+	format = (VipsImage**)
 		vips_object_local_array(object, arithmetic->n);
-	band = (VipsImage **)
+	band = (VipsImage**)
 		vips_object_local_array(object, arithmetic->n);
-	size = (VipsImage **)
+	size = (VipsImage**)
 		vips_object_local_array(object, arithmetic->n);
 
 	/* Decode RAD/LABQ etc.
@@ -691,7 +674,7 @@ vips_arithmetic_build(VipsObject *object)
 	arithmetic->ready = size;
 
 	if (vips_image_pipeline_array(arithmetic->out,
-			VIPS_DEMAND_STYLE_THINSTRIP, arithmetic->ready))
+		VIPS_DEMAND_STYLE_THINSTRIP, arithmetic->ready))
 		return -1;
 
 	arithmetic->out->Bands = arithmetic->ready[0]->Bands;
@@ -699,24 +682,23 @@ vips_arithmetic_build(VipsObject *object)
 		arithmetic->out->BandFmt = arithmetic->format;
 	else
 		arithmetic->out->BandFmt =
-			aclass->format_table[arithmetic->ready[0]->BandFmt];
+		aclass->format_table[arithmetic->ready[0]->BandFmt];
 
 	if (vips_image_generate(arithmetic->out,
-			vips_arithmetic_start,
-			vips_arithmetic_gen,
-			vips_arithmetic_stop,
-			arithmetic->ready, arithmetic))
+		vips_arithmetic_start,
+		vips_arithmetic_gen,
+		vips_arithmetic_stop,
+		arithmetic->ready, arithmetic))
 		return -1;
 
 	return 0;
 }
 
 static void
-vips_arithmetic_class_init(VipsArithmeticClass *class)
-{
-	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	VipsObjectClass *vobject_class = VIPS_OBJECT_CLASS(class);
-	VipsOperationClass *operation_class = VIPS_OPERATION_CLASS(class);
+vips_arithmetic_class_init(VipsArithmeticClass* class) {
+	GObjectClass* gobject_class = G_OBJECT_CLASS(class);
+	VipsObjectClass* vobject_class = VIPS_OBJECT_CLASS(class);
+	VipsOperationClass* operation_class = VIPS_OPERATION_CLASS(class);
 
 	gobject_class->set_property = vips_object_set_property;
 	gobject_class->get_property = vips_object_get_property;
@@ -735,24 +717,21 @@ vips_arithmetic_class_init(VipsArithmeticClass *class)
 }
 
 static void
-vips_arithmetic_init(VipsArithmetic *arithmetic)
-{
+vips_arithmetic_init(VipsArithmetic* arithmetic) {
 	arithmetic->base_bands = 1;
 	arithmetic->format = VIPS_FORMAT_NOTSET;
 }
 
 void
-vips_arithmetic_set_format_table(VipsArithmeticClass *class,
-	const VipsBandFormat *format_table)
-{
+vips_arithmetic_set_format_table(VipsArithmeticClass* class,
+	const VipsBandFormat* format_table) {
 	g_assert(!class->format_table);
 
 	class->format_table = format_table;
 }
 
 void
-vips_arithmetic_set_vector(VipsArithmeticClass *class)
-{
+vips_arithmetic_set_vector(VipsArithmeticClass* class) {
 	int i;
 
 	g_assert(class->format_table);
@@ -761,7 +740,7 @@ vips_arithmetic_set_vector(VipsArithmeticClass *class)
 		int isize = vips_format_sizeof(i);
 		int osize = vips_format_sizeof((int) class->format_table[i]);
 
-		VipsVector *v;
+		VipsVector* v;
 
 		v = vips_vector_new("arithmetic", osize);
 
@@ -777,10 +756,9 @@ vips_arithmetic_set_vector(VipsArithmeticClass *class)
 /* Get the stub for this program ... use _get_vector() to get the compiled
  * code.
  */
-VipsVector *
-vips_arithmetic_get_program(VipsArithmeticClass *class, VipsBandFormat fmt)
-{
-	g_assert((int) fmt >= 0 && (int) fmt < VIPS_FORMAT_LAST);
+VipsVector*
+vips_arithmetic_get_program(VipsArithmeticClass* class, VipsBandFormat fmt) {
+	g_assert((int)fmt >= 0 && (int)fmt < VIPS_FORMAT_LAST);
 	g_assert(!class->vector_program[fmt]);
 
 	class->vector_program[fmt] = TRUE;
@@ -790,9 +768,8 @@ vips_arithmetic_get_program(VipsArithmeticClass *class, VipsBandFormat fmt)
 
 /* Get the compiled code for this type, if available.
  */
-VipsVector *
-vips_arithmetic_get_vector(VipsArithmeticClass *class, VipsBandFormat fmt)
-{
+VipsVector*
+vips_arithmetic_get_vector(VipsArithmeticClass* class, VipsBandFormat fmt) {
 	g_assert(fmt >= 0 && fmt < VIPS_FORMAT_LAST);
 
 	if (!vips_vector_isenabled() ||
@@ -803,8 +780,7 @@ vips_arithmetic_get_vector(VipsArithmeticClass *class, VipsBandFormat fmt)
 }
 
 void
-vips_arithmetic_compile(VipsArithmeticClass *class)
-{
+vips_arithmetic_compile(VipsArithmeticClass* class) {
 	int i;
 
 	g_assert(class->format_table);
@@ -831,14 +807,14 @@ vips_arithmetic_compile(VipsArithmeticClass *class)
  * instead?
  */
 void
-vips_arithmetic_operation_init(void)
-{
+vips_arithmetic_operation_init(void) {
 	extern GType vips_add_get_type(void);
 	extern GType vips_sum_get_type(void);
 	extern GType vips_subtract_get_type(void);
 	extern GType vips_multiply_get_type(void);
 	extern GType vips_divide_get_type(void);
 	extern GType vips_invert_get_type(void);
+	extern GType vips_wand_get_type(void);
 	extern GType vips_avg_get_type(void);
 	extern GType vips_min_get_type(void);
 	extern GType vips_max_get_type(void);
@@ -878,6 +854,7 @@ vips_arithmetic_operation_init(void)
 	vips_multiply_get_type();
 	vips_divide_get_type();
 	vips_invert_get_type();
+	vips_wand_get_type();
 	vips_avg_get_type();
 	vips_min_get_type();
 	vips_max_get_type();
