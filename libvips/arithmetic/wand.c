@@ -13,10 +13,13 @@ typedef VipsUnaryClass VipsWandClass;
 
 G_DEFINE_TYPE(VipsWand, vips_wand, VIPS_TYPE_UNARY);
 
+extern void vips_invert_buffer(VipsArithmetic* arithmetic,
+	VipsPel* out, VipsPel** in, int width);
+
 static void
 vips_wand_buffer(VipsArithmetic* arithmetic,
 	VipsPel* out, VipsPel** in, int width) {
-
+	vips_invert_buffer(arithmetic, out, in, width);
 }
 
 static const VipsBandFormat vips_wand_format_table[0] = {};
