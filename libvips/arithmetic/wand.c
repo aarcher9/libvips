@@ -13,13 +13,21 @@ typedef VipsUnaryClass VipsWandClass;
 
 G_DEFINE_TYPE(VipsWand, vips_wand, VIPS_TYPE_UNARY);
 
-extern void vips_invert_buffer(VipsArithmetic* arithmetic,
-	VipsPel* out, VipsPel** in, int width);
-
 static void
 vips_wand_buffer(VipsArithmetic* arithmetic,
 	VipsPel* out, VipsPel** in, int width) {
-	vips_invert_buffer(arithmetic, out, in, width);
+
+	VipsImage* im = arithmetic->ready[0];
+	const int sz = width * vips_image_get_bands(im);
+
+	for (int x = 0; x < sz; x++) {
+		// RGB
+		out[0] = 245;
+		out[1] = 135;
+		out[2] = 66;
+
+		out += 3;
+	}
 }
 
 static const VipsBandFormat vips_wand_format_table[0] = {};
@@ -31,7 +39,6 @@ vips_wand_class_init(VipsWandClass* class) {
 
 	object_class->nickname = "wand";
 	object_class->description = _("do a magic trick!");
-
 	aclass->process_line = vips_wand_buffer;
 
 	vips_arithmetic_set_format_table(aclass, vips_wand_format_table);
@@ -46,7 +53,7 @@ vips_wand(VipsImage* in, VipsImage** out, ...) {
 	int result;
 
 	va_start(ap, out);
-	result = vips_call_split("wand", ap, in, out);
+	result = vips_call_split("wand", ap, in, out, NULL);
 	va_end(ap);
 
 	return result;
