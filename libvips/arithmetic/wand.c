@@ -21,12 +21,19 @@ vips_wand_buffer(VipsArithmetic* arithmetic,
 	const int sz = width * vips_image_get_bands(im);
 
 	for (int x = 0; x < sz; x++) {
-		// RGB
-		out[0] = 245;
-		out[1] = 135;
-		out[2] = 66;
 
-		out += 3;
+		if (in[0][x] > 200 || in[0][x] < 100) {
+
+			if (x % 3 == 0) {
+				out[x] = 255;
+			} else {
+				out[x] = in[0][x];
+			}
+
+		} else {
+			out[x] = in[0][x];
+		}
+
 	}
 }
 
